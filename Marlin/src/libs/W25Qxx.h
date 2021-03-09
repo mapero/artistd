@@ -48,7 +48,7 @@
 #define SPI_FLASH_PageSize           256
 #define SPI_FLASH_PerWritePageSize   256
 
-class ext_FLASH{
+class W25QXXFlash {
 public:
   void init(uint8_t spiRate);
   static uint8_t spi_flash_Rec();
@@ -67,4 +67,4 @@ public:
   static void SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
 };
 
-extern ext_FLASH W25QXX;
+extern W25QXXFlash W25QXX;

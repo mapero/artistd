@@ -1091,10 +1091,6 @@ void setup() {
     SETUP_RUN(card.mount());          // Mount media with settings before first_load
   #endif
 
-  #if ENABLED(SPI_EEPROM)
-    W25QXX.init(SPI_QUARTER_SPEED);
-  #endif
-
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
 
@@ -1265,6 +1261,10 @@ void setup() {
     BL24CXX::init();
     const uint8_t err = BL24CXX::check();
     SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
+  #endif
+
+  #if ENABLED(SPI_EEPROM)
+    W25QXX.init(SPI_QUARTER_SPEED);
   #endif
 
   #if ENABLED(DWIN_CREALITY_LCD)
