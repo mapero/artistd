@@ -24,9 +24,10 @@
 
 #if HAS_SPI_FLASH
 
+#include "W25Qxx.h"
 #include <SPI.h>
 
-#include "W25Qxx.h"
+ext_FLASH W25QXX;
 
 #ifndef SPI_FLASH_MISO_PIN
   #define SPI_FLASH_MISO_PIN W25QXX_MISO_PIN
@@ -43,8 +44,6 @@
 
 #define W25QXX_CS_H OUT_WRITE(SPI_FLASH_CS_PIN, HIGH)
 #define W25QXX_CS_L OUT_WRITE(SPI_FLASH_CS_PIN, LOW)
-
-ext_FLASH W25QXX;
 
 void ext_FLASH::init(uint8_t spiRate){
 

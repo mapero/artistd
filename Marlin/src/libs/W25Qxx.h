@@ -21,10 +21,6 @@
  */
 #pragma once
 
-//#ifdef __cplusplus
-//extern "C" { /* C-declarations for C++ */
-//#endif
-
 #include <stdint.h>
 
 #define W25X_WriteEnable        0x06
@@ -70,8 +66,5 @@ public:
   static void SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
   static void SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
 };
-extern ext_FLASH W25QXX;
 
-//#ifdef __cplusplus
-//} /* C-declarations for C++ */
-//#endif
+extern ext_FLASH W25QXX;
