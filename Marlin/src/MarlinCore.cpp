@@ -72,17 +72,17 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "lcd/dwin/dwin.h"
+  #include "lcd/dwin/e3v2/dwin.h"
   #include "lcd/dwin/dwin_lcd.h"
-  #include "lcd/dwin/rotary_encoder.h"
-#endif
-
-#if ENABLED(SPI_EEPROM)
-  #include "libs/W25Qxx.h"
+  #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #include "libs/BL24CXX.h"
+#endif
+
+#if ENABLED(SPI_EEPROM)
+  #include "libs/W25Qxx.h"
 #endif
 
 #if ENABLED(DIRECT_STEPPING)
