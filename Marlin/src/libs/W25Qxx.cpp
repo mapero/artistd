@@ -19,12 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../inc/MarlinConfig.h"
-#include "../MarlinCore.h"
-#if ENABLED(SPI_FLASH)
+
+#if HAS_SPI_FLASH
+
 #include <SPI.h>
 
-#if ENABLED(SPI_EEPROM)
 #include "W25Qxx.h"
 
 #ifndef SPI_FLASH_MISO_PIN
@@ -46,34 +47,34 @@
 ext_FLASH W25QXX;
 
 void ext_FLASH::init(uint8_t spiRate){
-	
-	  OUT_WRITE(SPI_FLASH_CS_PIN, HIGH);
 
-	  /**
-	   * STM32F1 APB2 = 72MHz, APB1 = 36MHz, max SPI speed of this MCU if 18Mhz
-	   * STM32F1 has 3 SPI ports, SPI1 in APB2, SPI2/SPI3 in APB1
-	   * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
-	   */
-	  #if SPI_DEVICE == 1
-	    #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
-	  #else
-	    #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
-	  #endif
-	  uint8_t  clock;
-	  switch (spiRate) {
-	    case SPI_FULL_SPEED:    clock = SPI_CLOCK_MAX ;  break;
-	    case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4 ; break;
-	    case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8 ; break;
-	    case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
-	    case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
-	    case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
-	    default:                clock = SPI_CLOCK_DIV2;  // Default from the SPI library
-	  }
-	  SPI.setModule(SPI_DEVICE);
-	  SPI.begin();
-	  SPI.setClockDivider(clock);
-	  SPI.setBitOrder(MSBFIRST);
-	  SPI.setDataMode(SPI_MODE0);	
+  OUT_WRITE(SPI_FLASH_CS_PIN, HIGH);
+
+  /**
+   * STM32F1 APB2 = 72MHz, APB1 = 36MHz, max SPI speed of this MCU if 18Mhz
+   * STM32F1 has 3 SPI ports, SPI1 in APB2, SPI2/SPI3 in APB1
+   * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
+   */
+  #if SPI_DEVICE == 1
+    #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
+  #else
+    #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
+  #endif
+  uint8_t clock;
+  switch (spiRate) {
+    case SPI_FULL_SPEED:    clock = SPI_CLOCK_MAX;  break;
+    case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4; break;
+    case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8; break;
+    case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
+    case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
+    case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
+    default:                clock = SPI_CLOCK_DIV2;// Default from the SPI library
+  }
+  SPI.setModule(SPI_DEVICE);
+  SPI.begin();
+  SPI.setClockDivider(clock);
+  SPI.setBitOrder(MSBFIRST);
+  SPI.setDataMode(SPI_MODE0);
 }
 
 /**
@@ -128,28 +129,27 @@ void ext_FLASH::spi_flash_SendBlock(uint8_t token, const uint8_t* buf) {
   SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
 }
 
-uint16_t ext_FLASH::W25QXX_ReadID(void)
-{
-	uint16_t Temp = 0;	  
-	W25QXX_CS_L;				    
-	spi_flash_Send(0x90);//���Ͷ�ȡID����	    
-	spi_flash_Send(0x00); 	    
-	spi_flash_Send(0x00); 	    
-	spi_flash_Send(0x00); 	 			   
-	Temp|=spi_flash_Rec()<<8;  
-	Temp|=spi_flash_Rec();	 
-	W25QXX_CS_H;				    
-	return Temp;
-}  
-void ext_FLASH::SPI_FLASH_WriteEnable(void)
-{
-  /* Select the FLASH: Chip Select low */
-	W25QXX_CS_L;
-  /* Send "Write Enable" instruction */
-  	spi_flash_Send(W25X_WriteEnable);
-  /* Deselect the FLASH: Chip Select high */
-	W25QXX_CS_H;
+uint16_t ext_FLASH::W25QXX_ReadID(void) {
+  uint16_t Temp = 0;
+  W25QXX_CS_L;
+  spi_flash_Send(0x90);
+  spi_flash_Send(0x00);
+  spi_flash_Send(0x00);
+  spi_flash_Send(0x00);
+  Temp |= spi_flash_Rec() << 8;
+  Temp |= spi_flash_Rec();
+  W25QXX_CS_H;
+  return Temp;
 }
+void ext_FLASH::SPI_FLASH_WriteEnable(void) {
+  /* Select the FLASH: Chip Select low */
+  W25QXX_CS_L;
+  /* Send "Write Enable" instruction */
+  spi_flash_Send(W25X_WriteEnable);
+  /* Deselect the FLASH: Chip Select high */
+  W25QXX_CS_H;
+}
+
 /*******************************************************************************
 * Function Name  : SPI_FLASH_WaitForWriteEnd
 * Description    : Polls the status of the Write In Progress (WIP) flag in the
@@ -200,22 +200,21 @@ void ext_FLASH::SPI_FLASH_SectorErase(uint32_t SectorAddr) {
   SPI_FLASH_WaitForWriteEnd();
 }
 
-void ext_FLASH::SPI_FLASH_BlockErase(uint32_t BlockAddr)
-{
-    SPI_FLASH_WriteEnable();
-    W25QXX_CS_L;
-    /* Send Sector Erase instruction */
-    spi_flash_Send(W25X_BlockErase);
-    /* Send SectorAddr high nibble address byte */
-    spi_flash_Send((BlockAddr & 0xFF0000) >> 16);
-    /* Send SectorAddr medium nibble address byte */
-    spi_flash_Send((BlockAddr & 0xFF00) >> 8);
-    /* Send SectorAddr low nibble address byte */
-    spi_flash_Send(BlockAddr & 0xFF);
+void ext_FLASH::SPI_FLASH_BlockErase(uint32_t BlockAddr) {
+  SPI_FLASH_WriteEnable();
+  W25QXX_CS_L;
+  /* Send Sector Erase instruction */
+  spi_flash_Send(W25X_BlockErase);
+  /* Send SectorAddr high nibble address byte */
+  spi_flash_Send((BlockAddr & 0xFF0000) >> 16);
+  /* Send SectorAddr medium nibble address byte */
+  spi_flash_Send((BlockAddr & 0xFF00) >> 8);
+  /* Send SectorAddr low nibble address byte */
+  spi_flash_Send(BlockAddr & 0xFF);
 
-    W25QXX_CS_H;
+  W25QXX_CS_H;
 
-    SPI_FLASH_WaitForWriteEnd();
+  SPI_FLASH_WaitForWriteEnd();
 }
 
 /*******************************************************************************
@@ -225,15 +224,14 @@ void ext_FLASH::SPI_FLASH_BlockErase(uint32_t BlockAddr)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ext_FLASH::SPI_FLASH_BulkErase(void)
-{
+void ext_FLASH::SPI_FLASH_BulkErase(void) {
   /* Send write enable instruction */
   SPI_FLASH_WriteEnable();
 
   /* Bulk Erase */
   /* Select the FLASH: Chip Select low */
   W25QXX_CS_L;
-  
+
   /* Send Bulk Erase instruction  */
   spi_flash_Send(W25X_ChipErase);
   /* Deselect the FLASH: Chip Select high */
@@ -255,8 +253,7 @@ void ext_FLASH::SPI_FLASH_BulkErase(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ext_FLASH::SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
-{
+void ext_FLASH::SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite) {
   /* Enable the write access to the FLASH */
   SPI_FLASH_WriteEnable();
 
@@ -277,8 +274,7 @@ void ext_FLASH::SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16
   }
 
   /* while there is data to be written on the FLASH */
-  while (NumByteToWrite--)
-  {
+  while (NumByteToWrite--) {
     /* Send the current byte */
     spi_flash_Send(*pBuffer);
     /* Point on the next byte to be written */
@@ -303,73 +299,57 @@ void ext_FLASH::SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ext_FLASH::SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
-{
+void ext_FLASH::SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite){
   uint8_t NumOfPage = 0, NumOfSingle = 0, Addr = 0, count = 0, temp = 0;
 
   Addr = WriteAddr % SPI_FLASH_PageSize;
   count = SPI_FLASH_PageSize - Addr;
-  NumOfPage =  NumByteToWrite / SPI_FLASH_PageSize;
+  NumOfPage = NumByteToWrite / SPI_FLASH_PageSize;
   NumOfSingle = NumByteToWrite % SPI_FLASH_PageSize;
 
-  if (Addr == 0) /* WriteAddr is SPI_FLASH_PageSize aligned  */
-  {
-    if (NumOfPage == 0) /* NumByteToWrite < SPI_FLASH_PageSize */
-    {
+  if (Addr == 0) { /* WriteAddr is SPI_FLASH_PageSize aligned  */
+    if (NumOfPage == 0) { /* NumByteToWrite < SPI_FLASH_PageSize */
       SPI_FLASH_PageWrite(pBuffer, WriteAddr, NumByteToWrite);
     }
-    else /* NumByteToWrite > SPI_FLASH_PageSize */
-    {
-      while (NumOfPage--)
-      {
+    else { /* NumByteToWrite > SPI_FLASH_PageSize */
+      while (NumOfPage--) {
         SPI_FLASH_PageWrite(pBuffer, WriteAddr, SPI_FLASH_PageSize);
-        WriteAddr +=  SPI_FLASH_PageSize;
+        WriteAddr += SPI_FLASH_PageSize;
         pBuffer += SPI_FLASH_PageSize;
       }
-
       SPI_FLASH_PageWrite(pBuffer, WriteAddr, NumOfSingle);
     }
   }
-  else /* WriteAddr is not SPI_FLASH_PageSize aligned  */
-  {
-    if (NumOfPage == 0) /* NumByteToWrite < SPI_FLASH_PageSize */
-    {
-      if (NumOfSingle > count) /* (NumByteToWrite + WriteAddr) > SPI_FLASH_PageSize */
-      {
+  else { /* WriteAddr is not SPI_FLASH_PageSize aligned  */
+    if (NumOfPage == 0) { /* NumByteToWrite < SPI_FLASH_PageSize */
+      if (NumOfSingle > count) { /* (NumByteToWrite + WriteAddr) > SPI_FLASH_PageSize */
         temp = NumOfSingle - count;
-
         SPI_FLASH_PageWrite(pBuffer, WriteAddr, count);
-        WriteAddr +=  count;
+        WriteAddr += count;
         pBuffer += count;
-
         SPI_FLASH_PageWrite(pBuffer, WriteAddr, temp);
       }
-      else
-      {
+      else {
         SPI_FLASH_PageWrite(pBuffer, WriteAddr, NumByteToWrite);
       }
     }
-    else /* NumByteToWrite > SPI_FLASH_PageSize */
-    {
+    else { /* NumByteToWrite > SPI_FLASH_PageSize */
       NumByteToWrite -= count;
-      NumOfPage =  NumByteToWrite / SPI_FLASH_PageSize;
+      NumOfPage = NumByteToWrite / SPI_FLASH_PageSize;
       NumOfSingle = NumByteToWrite % SPI_FLASH_PageSize;
 
       SPI_FLASH_PageWrite(pBuffer, WriteAddr, count);
-      WriteAddr +=  count;
+      WriteAddr += count;
       pBuffer += count;
 
-      while (NumOfPage--)
-      {
+      while (NumOfPage--) {
         SPI_FLASH_PageWrite(pBuffer, WriteAddr, SPI_FLASH_PageSize);
-        WriteAddr +=  SPI_FLASH_PageSize;
+        WriteAddr += SPI_FLASH_PageSize;
         pBuffer += SPI_FLASH_PageSize;
       }
 
       if (NumOfSingle != 0)
-      {
         SPI_FLASH_PageWrite(pBuffer, WriteAddr, NumOfSingle);
-      }
     }
   }
 }
@@ -384,8 +364,7 @@ void ext_FLASH::SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ext_FLASH::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead)
-{
+void ext_FLASH::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead) {
   /* Select the FLASH: Chip Select low */
   W25QXX_CS_L;
 
@@ -395,34 +374,22 @@ void ext_FLASH::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16
   /* Send ReadAddr high nibble address byte to read from */
   spi_flash_Send((ReadAddr & 0xFF0000) >> 16);
   /* Send ReadAddr medium nibble address byte to read from */
-  spi_flash_Send((ReadAddr& 0xFF00) >> 8);
+  spi_flash_Send((ReadAddr & 0xFF00) >> 8);
   /* Send ReadAddr low nibble address byte to read from */
   spi_flash_Send(ReadAddr & 0xFF);
 
-  if(NumByteToRead<33)	
-  {
-    while (NumByteToRead--) /* while there is data to be read */
-    {
+  if (NumByteToRead < 33) {
+    while (NumByteToRead--) { /* while there is data to be read */
       /* Read a byte from the FLASH */
       *pBuffer = spi_flash_Rec();
       /* Point to the next location where the byte read will be saved */
       pBuffer++;
     }
   }
-  else
-  {
-      spi_flash_Read(pBuffer, NumByteToRead); 
-   }
+  else {
+    spi_flash_Read(pBuffer, NumByteToRead);
+  }
   W25QXX_CS_H;
 }
 
-
-void ext_FLASH::lv_pic_read(uint8_t *P_Rbuff,uint32_t addr,uint32_t size)
-{
-	SPI_FLASH_BufferRead((uint8_t *)P_Rbuff,addr,size);
-}
-
-
-#endif
-
-#endif
+#endif // HAS_SPI_FLASH

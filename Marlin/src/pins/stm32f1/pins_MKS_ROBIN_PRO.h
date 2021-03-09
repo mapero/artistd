@@ -48,7 +48,7 @@
 
 // Note: MKS Robin board is using SPI2 interface.
 //
-//#define SPI_MODULE 2
+#define SPI_MODULE                           2
 #define ENABLE_SPI2
 
 //
@@ -113,6 +113,7 @@
 
 //SPI FLASH
 #define SPI_FLASH
+#define HAS_SPI_FLASH                          1
 #if ENABLED(SPI_FLASH)
 	#define 	W25QXX_CS_PIN		  	PB12
 	#define 	W25QXX_MOSI_PIN			PB15
@@ -221,8 +222,8 @@
   #define SS_PIN                            PG6
 #elif SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT
-  #define ONBOARD_SD_CS_PIN                 PC11
   #define SD_DETECT_PIN                     PD12
+  #define ONBOARD_SD_CS_PIN                 PC11
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
@@ -241,7 +242,7 @@
 
   #define LCD_BACKLIGHT_PIN                 PD13
 
-  #if ENABLED(TOUCH_BUTTONS)
+  #if NEED_TOUCH_PINS
     #define TOUCH_CS_PIN                    PA7
 	#define TOUCH_SCK_PIN                   PB13
     #define TOUCH_MOSI_PIN                  PB15
@@ -282,14 +283,15 @@
     #endif
 
   #endif // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
+
 #endif
 
 #ifndef BOARD_ST7920_DELAY_1
-  #define BOARD_ST7920_DELAY_1     DELAY_NS(750)  //DELAY_NS(125) CTM
+  #define BOARD_ST7920_DELAY_1     DELAY_NS(750)  //DELAY_NS(125) JGMaker
 #endif
 #ifndef BOARD_ST7920_DELAY_2
-  #define BOARD_ST7920_DELAY_2     DELAY_NS(750)  //DELAY_NS(125) CTM 
+  #define BOARD_ST7920_DELAY_2     DELAY_NS(750)  //DELAY_NS(125) JGMaker
 #endif
 #ifndef BOARD_ST7920_DELAY_3
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(750)  //DELAY_NS(125) CTM
+  #define BOARD_ST7920_DELAY_3     DELAY_NS(750)  //DELAY_NS(125) JGMaker
 #endif
