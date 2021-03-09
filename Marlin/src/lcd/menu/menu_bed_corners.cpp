@@ -62,7 +62,7 @@ static inline void _lcd_goto_next_corner() {
   switch (bed_corner) {
 
 /**
- * JGMaker Level Center First
+ * TwinkieXLII Level Center First
  */
     #if ENABLED(LEVEL_CENTER_TOO)
       case 0: current_position.set(X_CENTER, Y_CENTER); break;

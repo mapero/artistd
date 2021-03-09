@@ -114,7 +114,7 @@
   extern float other_extruder_advance_K[EXTRUDERS];
 #endif
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   #include "tool_change.h"
   void M217_report(const bool eeprom);
 #endif

@@ -883,7 +883,7 @@
 // Backlash Compensation
 // Adds extra movement to axes on direction-changes to account for backlash.
 //
-#define BACKLASH_COMPENSATION   //  JGMaker
+#define BACKLASH_COMPENSATION   //  TwinkieXLII
 #if ENABLED(BACKLASH_COMPENSATION)
   // Define values for backlash distance and correction.
   // If BACKLASH_GCODE is enabled these values are the defaults.
@@ -892,10 +892,10 @@
 
   // Set BACKLASH_SMOOTHING_MM to spread backlash correction over multiple segments
   // to reduce print artifacts. (Enabling this is costly in memory and computation!)
-  #define BACKLASH_SMOOTHING_MM 3 // (mm)  JGMaker
+  #define BACKLASH_SMOOTHING_MM 3 // (mm)  TwinkieXLII
 
   // Add runtime configuration and tuning of backlash values (M425)
-  #define BACKLASH_GCODE  //JGMaker
+  #define BACKLASH_GCODE  //TwinkieXLII
 
   #if ENABLED(BACKLASH_GCODE)
     // Measure the Z backlash when probing (G29) and set with "M425 Z"
@@ -2087,7 +2087,7 @@
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-#define ADVANCED_PAUSE_FEATURE //JGMaker
+#define ADVANCED_PAUSE_FEATURE //TwinkieXLII
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
   #define PAUSE_PARK_RETRACT_LENGTH            2  // (mm) Initial retract.
@@ -3163,7 +3163,7 @@
 //#define M114_REALTIME       // Real current position based on forward kinematics
 //#define M114_LEGACY         // M114 used to synchronize on every call. Enable if needed.
 
-#define REPORT_FAN_CHANGE   // Report the new fan speed when changed by M106 (and others). //JGMaker
+#define REPORT_FAN_CHANGE   // Report the new fan speed when changed by M106 (and others). //TwinkieXLII
 
 /**
  * Set the number of proportional font spaces required to fill up a typical character space.
@@ -3261,9 +3261,9 @@
  * Host Prompt Support enables Marlin to use the host for user prompts so
  * filament runout and other processes can be managed from the host side.
  */
-#define HOST_ACTION_COMMANDS       //JGMaker
+#define HOST_ACTION_COMMANDS       //TwinkieXLII
 #if ENABLED(HOST_ACTION_COMMANDS)
-  #define HOST_PROMPT_SUPPORT      //JGMaker
+  #define HOST_PROMPT_SUPPORT      //TwinkieXLII
   //#define HOST_START_MENU_ITEM  // Add a menu item that tells the host to start
 #endif
 

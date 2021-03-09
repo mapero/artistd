@@ -416,14 +416,14 @@
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  */
 #define TEMP_SENSOR_0 1
-#define TEMP_SENSOR_1 1  //JGMaker 热敏电阻  
+#define TEMP_SENSOR_1 1  //TwinkieXLII 热敏电阻  
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
 #define TEMP_SENSOR_5 0
 #define TEMP_SENSOR_6 0
 #define TEMP_SENSOR_7 0
-#define TEMP_SENSOR_BED 1  //JGMaker
+#define TEMP_SENSOR_BED 1  //TwinkieXLII
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
 
@@ -473,7 +473,7 @@
 #define HEATER_5_MAXTEMP 275
 #define HEATER_6_MAXTEMP 275
 #define HEATER_7_MAXTEMP 275
-#define BED_MAXTEMP      130 //JGMaker
+#define BED_MAXTEMP      130 //TwinkieXLII
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -623,7 +623,7 @@
 #define USE_XMIN_PLUG
 #define USE_YMIN_PLUG
 #define USE_ZMIN_PLUG
-#define USE_XMAX_PLUG //JGMaker
+#define USE_XMAX_PLUG //TwinkieXLII
 //#define USE_YMAX_PLUG
 //#define USE_ZMAX_PLUG
 
@@ -658,7 +658,7 @@
 #define Y_MIN_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
 #define Z_MIN_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
-#define Y_MAX_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.  //JGMaker  已确认正确
+#define Y_MAX_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.  //TwinkieXLII  已确认正确
 #define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
 
@@ -678,16 +678,16 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-#define X_DRIVER_TYPE  TMC2208_STANDALONE //JGMaker
-#define Y_DRIVER_TYPE  TMC2208_STANDALONE //JGMaker
-#define Z_DRIVER_TYPE  TMC2208_STANDALONE //JGMaker
-#define X2_DRIVER_TYPE TMC2208_STANDALONE //JGMaker
+#define X_DRIVER_TYPE  TMC2208_STANDALONE //TwinkieXLII
+#define Y_DRIVER_TYPE  TMC2208_STANDALONE //TwinkieXLII
+#define Z_DRIVER_TYPE  TMC2208_STANDALONE //TwinkieXLII
+#define X2_DRIVER_TYPE TMC2208_STANDALONE //TwinkieXLII
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
-#define E0_DRIVER_TYPE A4988              //JGMaker
-#define E1_DRIVER_TYPE A4988              //JGMaker
+#define E0_DRIVER_TYPE A4988              //TwinkieXLII
+#define E1_DRIVER_TYPE A4988              //TwinkieXLII
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
 //#define E4_DRIVER_TYPE A4988
@@ -734,7 +734,7 @@
  * following movement settings. If fewer factors are given than the
  * total number of extruders, the last value applies to the rest.
  */
-#define DISTINCT_E_FACTORS   //JGMaker
+#define DISTINCT_E_FACTORS   //TwinkieXLII
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
@@ -748,7 +748,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 10, 50 } //JGMaker
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 10, 50 } //TwinkieXLII
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -761,7 +761,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 10000 } //{ 500, 500, 100, 10000 }  JGMaker
+#define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 10000 } //{ 500, 500, 100, 10000 }  TwinkieXLII
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -1087,13 +1087,13 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
-#define INVERT_Y_DIR false  //JGMaker
+#define INVERT_Y_DIR false  //TwinkieXLII
 #define INVERT_Z_DIR false
 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR true   //JGMaker
+#define INVERT_E0_DIR true   //TwinkieXLII
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -1122,16 +1122,16 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 310   //JGMaker
-#define Y_BED_SIZE 310   //JGMaker
+#define X_BED_SIZE 310   //TwinkieXLII
+#define Y_BED_SIZE 310   //TwinkieXLII
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS -62.5  //JGMaker
+#define X_MIN_POS -62.5  //TwinkieXLII
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 350  // JGMaker 发现走不到350
+#define Z_MAX_POS 350  // TwinkieXLII 发现走不到350
 
 
 /**
@@ -1170,10 +1170,10 @@
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
-#define FILAMENT_RUNOUT_SENSOR   //JGMaker
+#define FILAMENT_RUNOUT_SENSOR   //TwinkieXLII
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define NUM_RUNOUT_SENSORS   2     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-  #define FIL_RUNOUT_STATE     HIGH  // Pin state indicating that filament is NOT present.  //JGMaker
+  #define FIL_RUNOUT_STATE     HIGH  // Pin state indicating that filament is NOT present.  //TwinkieXLII
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
 
@@ -1232,7 +1232,7 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-#define AUTO_BED_LEVELING_3POINT  //JGMaker
+#define AUTO_BED_LEVELING_3POINT  //TwinkieXLII
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
@@ -1523,7 +1523,7 @@
  *    P1  Raise the nozzle always to Z-park height.
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
-#define NOZZLE_PARK_FEATURE    //JGMaker
+#define NOZZLE_PARK_FEATURE    //TwinkieXLII
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z_raise }
