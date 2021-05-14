@@ -221,6 +221,10 @@
   #include "libs/L64XX/L64XX_Marlin.h"
 #endif
 
+#if ENABLED(SPI_EEPROM)
+  #include "libs/W25Qxx.h"
+#endif
+
 #if ENABLED(PASSWORD_FEATURE)
   #include "feature/password/password.h"
 #endif
@@ -1093,6 +1097,11 @@ void setup() {
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
+
+  #if ENABLED(SPI_EEPROM)
+    W25QXX.init(SPI_QUARTER_SPEED);
+  #endif
+  settings.first_load();
 
   #if HAS_TOUCH_XPT2046
     SETUP_RUN(touch.init());

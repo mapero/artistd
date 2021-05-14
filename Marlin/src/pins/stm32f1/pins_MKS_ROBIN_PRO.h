@@ -195,7 +195,7 @@
 //#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
 //#define MAX6675_SS_PIN                    PF11  // TC2 - CS2
 
-#define POWER_LOSS_PIN                      PA2   // PW_DET
+//#define POWER_LOSS_PIN                      PA2   // PW_DET //TWINKIEXLII power_loss_pin not used??  https://www.youtube.com/watch?v=Kk0tKxKDrIg
 #define PS_ON_PIN                           PG11  // PW_OFF
 #define FIL_RUNOUT_PIN                      PA4   // MT_DET1
 #define FIL_RUNOUT2_PIN                     PE6   // MT_DET2

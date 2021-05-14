@@ -637,7 +637,7 @@ bool CardReader::fileExists(const char * const path) {
   if (fname) {
     diveDir->rewind();
     selectByName(*diveDir, fname);
-    diveDir->close();
+    //diveDir->close();  https://github.com/MarlinFirmware/Marlin/pull/20035/commits/546e82dccb1a2c14517c04082d0d7ea9eecab4ad
   }
   return fname != nullptr;
 }
