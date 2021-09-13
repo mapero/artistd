@@ -1,7 +1,9 @@
-# Firmware For JGMaker Artist-D
-![GitHub](https://img.shields.io/github/license/JGMaker3dofficial/artistd.svg)
-![GitHub contributors](https://img.shields.io/github/contributors/JGMaker3dofficial/artistd.svg)
-![GitHub Release Date](https://img.shields.io/github/release-date/JGMaker3dofficial/artistd.svg)
+# Modified Firmware For JGMaker Artist-D with Trianglelabs Matrix Extruder
+
+## Modifications
+
+- 104NT-4-R025H42G Temperature sensor
+- Undo inversion of extruder 0
 
 ## Official Firmware 
 * Get the inital release of the Official Firmware: https://github.com/JGMaker3dofficial/artistd/releases/tag/1.1.2
