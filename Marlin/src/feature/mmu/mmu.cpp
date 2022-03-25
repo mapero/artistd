@@ -19,25 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-/**
- * Test X86_64-specific configuration values for errors at compile-time.
- */
+#include "../../inc/MarlinConfig.h"
 
-// Emulating RAMPS
-#if ENABLED(SPINDLE_LASER_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
-  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
-#endif
+#if HAS_PRUSA_MMU1
 
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on LINUX."
-#endif
+#include "../module/stepper.h"
 
-#if HAS_TMC_SW_SERIAL
-  #error "TMC220x Software Serial is not supported on LINUX."
-#endif
+void select_multiplexed_stepper(const uint8_t e) {
+  planner.synchronize();
+  disable_e_steppers();
+  WRITE(E_MUX0_PIN, TEST(e, 0) ? HIGH : LOW);
+  WRITE(E_MUX1_PIN, TEST(e, 1) ? HIGH : LOW);
+  WRITE(E_MUX2_PIN, TEST(e, 2) ? HIGH : LOW);
+  safe_delay(100);
+}
 
-#if ENABLED(POSTMORTEM_DEBUGGING)
-  #error "POSTMORTEM_DEBUGGING is not yet supported on LINUX."
-#endif
+#endif // HAS_PRUSA_MMU1

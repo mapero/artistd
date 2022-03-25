@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,25 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
-
-/**
- * Test X86_64-specific configuration values for errors at compile-time.
- */
-
-// Emulating RAMPS
-#if ENABLED(SPINDLE_LASER_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
-  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
-#endif
-
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on LINUX."
-#endif
-
-#if HAS_TMC_SW_SERIAL
-  #error "TMC220x Software Serial is not supported on LINUX."
-#endif
+#include "HAL_MinSerial.h"
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
-  #error "POSTMORTEM_DEBUGGING is not yet supported on LINUX."
+
+void HAL_min_serial_init_default() {}
+void HAL_min_serial_out_default(char ch) { SERIAL_CHAR(ch); }
+void (*HAL_min_serial_init)() = &HAL_min_serial_init_default;
+void (*HAL_min_serial_out)(char) = &HAL_min_serial_out_default;
+
+bool MinSerial::force_using_default_output = false;
+
 #endif
