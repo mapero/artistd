@@ -26,9 +26,9 @@
 ////////////////////////////////////
 
 /**
- * Marlin release version identifier //BASED on 2.0.7.2
+ * Marlin release version identifier //BASED on 2.0.8
  */
-#define SHORT_BUILD_VERSION "2021.5"
+#define SHORT_BUILD_VERSION "2021.0.1"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -41,7 +41,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2021-05-12"
+#define STRING_DISTRIBUTION_DATE "2021-03-25"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
@@ -54,7 +54,7 @@
  * has a distinct Github fork— the Source Code URL should just be the main
  * Marlin repository.
  */
-#define SOURCE_CODE_URL "https://github.com/JGMaker3dofficial/artistd"
+#define SOURCE_CODE_URL "https://github.com/TwinkieXLII/artistd"
 
 /**
  * Default generic printer UUID.
@@ -65,7 +65,7 @@
  * The WEBSITE_URL is the location where users can get more information such as
  * documentation about a specific Marlin release.
  */
-#define WEBSITE_URL "https://jgmaker3d.com/"
+#define WEBSITE_URL "https://github.com/TwinkieXLII"
 
 /**
  * Set the vendor info the serial USB interface, if changable
