@@ -46,7 +46,7 @@
  *
  *  DOGLCD                : Run a Graphical LCD through U8GLib (with MarlinUI)
  *  IS_ULTIPANEL          : Define LCD_PINS_D5/6/7 for direct-connected "Ultipanel" LCDs
- *  IS_ULTRA_LCD          : Ultra LCD, not necessarily Ultipanel. Used most often with NEWPANEL.
+ *  IS_ULTRA_LCD          : Ultra LCD, not necessarily Ultipanel.
  *  IS_RRD_SC             : Common RRD Smart Controller digital interface pins
  *  IS_RRD_FG_SC          : Common RRD Full Graphical Smart Controller digital interface pins
  *  U8GLIB_ST7920         : Most common DOGM display SPI interface, supporting a "lightweight" display mode.
@@ -78,7 +78,7 @@
   #define ADC_KEY_NUM 8
   #define IS_ULTIPANEL 1
 
-  // This helps to implement ADC_KEYPAD menus
+  // This helps to implement HAS_ADC_BUTTONS menus
   #define REVERSE_MENU_DIRECTION
   #define ENCODER_PULSES_PER_STEP 1
   #define ENCODER_STEPS_PER_MENU_ITEM 1
@@ -100,10 +100,6 @@
 #elif ENABLED(RADDS_DISPLAY)
   #define IS_ULTIPANEL 1
   #define ENCODER_PULSES_PER_STEP 2
-
-#elif EITHER(ANET_FULL_GRAPHICS_LCD, BQ_LCD_SMART_CONTROLLER)
-
-  #define IS_RRD_FG_SC
 
 #elif ANY(miniVIKI, VIKI2, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864)
 
@@ -563,13 +559,13 @@
   #define E_STEPPERS 1
 #endif
 
-// No inactive extruders with MK2_MULTIPLEXER or SWITCHING_NOZZLE
-#if EITHER(MK2_MULTIPLEXER, SWITCHING_NOZZLE)
+// No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
+#if ENABLED(SWITCHING_NOZZLE) || HAS_PRUSA_MMU1
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Průša MK2 Multiplexer and MMU 2.0 force SINGLENOZZLE
-#if EITHER(MK2_MULTIPLEXER, PRUSA_MMU2)
+// Průša MMU1, MMU(S) 2.0 and EXTENDABLE_EMU_MMU2(S) force SINGLENOZZLE
+#if HAS_MMU
   #define SINGLENOZZLE
 #endif
 
@@ -768,6 +764,13 @@
 #endif
 #if !HAS_LEVELING
   #undef RESTORE_LEVELING_AFTER_G28
+  #undef ENABLE_LEVELING_AFTER_G28
+#endif
+#if !HAS_LEVELING || EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+  #undef PROBE_MANUALLY
+#endif
+#if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
+  #define PROBE_SELECTED 1
 #endif
 
 #ifdef GRID_MAX_POINTS_X
@@ -900,11 +903,12 @@
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
 #endif
 
-// FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi).h
+
+// FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi|ltdc).h
 #if ENABLED(TFT_INTERFACE_FSMC)
   #define HAS_FSMC_TFT 1
   #if ENABLED(TFT_CLASSIC_UI)
-    #define FSMC_GRAPHICAL_TFT
+    #define HAS_FSMC_GRAPHICAL_TFT 1
   #elif ENABLED(TFT_LVGL_UI)
     #define TFT_LVGL_UI_FSMC
   #endif

@@ -16,9 +16,11 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 #pragma once
+
+#include "../inc/MarlinConfigPre.h"
 
 typedef const char Language_Str[];
 
@@ -65,11 +67,11 @@ typedef const char Language_Str[];
     lang == 3 ? GET_LANG(LCD_LANGUAGE_4)::MSG : \
                 GET_LANG(LCD_LANGUAGE_5)::MSG \
     )
-  #define MAX_LANG_CHARSIZE _MAX(GET_LANG(LCD_LANGUAGE)::CHARSIZE, \
-                                GET_LANG(LCD_LANGUAGE_2)::CHARSIZE, \
-                                GET_LANG(LCD_LANGUAGE_3)::CHARSIZE, \
-                                GET_LANG(LCD_LANGUAGE_4)::CHARSIZE, \
-                                GET_LANG(LCD_LANGUAGE_5)::CHARSIZE)
+  #define MAX_LANG_CHARSIZE _MAX(GET_LANG(LCD_LANGUAGE  )::CHARSIZE, \
+                                 GET_LANG(LCD_LANGUAGE_2)::CHARSIZE, \
+                                 GET_LANG(LCD_LANGUAGE_3)::CHARSIZE, \
+                                 GET_LANG(LCD_LANGUAGE_4)::CHARSIZE, \
+                                 GET_LANG(LCD_LANGUAGE_5)::CHARSIZE  )
 #else
   #define GET_TEXT(MSG) GET_LANG(LCD_LANGUAGE)::MSG
   #define MAX_LANG_CHARSIZE GET_LANG(LCD_LANGUAGE)::CHARSIZE
@@ -77,6 +79,8 @@ typedef const char Language_Str[];
 #define GET_TEXT_F(MSG) (const __FlashStringHelper*)GET_TEXT(MSG)
 
 #define GET_LANGUAGE_NAME(INDEX) GET_LANG(LCD_LANGUAGE_##INDEX)::LANGUAGE
+#define LANG_CHARSIZE GET_TEXT(CHARSIZE)
+#define USE_WIDE_GLYPH (LANG_CHARSIZE > 2)
 
 #define MSG_1_LINE(A)     A "\0"   "\0"
 #define MSG_2_LINE(A,B)   A "\0" B "\0"

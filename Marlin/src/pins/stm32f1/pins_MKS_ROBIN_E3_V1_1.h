@@ -21,22 +21,16 @@
  */
 #pragma once
 
-#if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Dagoma3D F5 RAMPS supports only 2 hotends / E-steppers. Comment out this line to continue."
+/**
+ * MKS Robin E3 v1.1 (STM32F103RCT6) board pin assignments
+ */
+
+#if HOTENDS > 1 || E_STEPPERS > 1
+  #error "MKS Robin E3 v1.1 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "Dagoma3D F5 RAMPS"
-
-#define X_STOP_PIN                            2
-#define Y_STOP_PIN                            3
-#define Z_STOP_PIN                           15
-#define FIL_RUNOUT_PIN                       39
-
-#ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                     7
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "MKS Robin E3 V1.1"
 #endif
 
-//
-// Import RAMPS 1.4 pins
-//
-#include "pins_RAMPS.h"
+#include "pins_MKS_ROBIN_E3_V1_1_common.h"
