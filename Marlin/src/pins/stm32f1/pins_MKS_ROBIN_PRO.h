@@ -46,13 +46,13 @@
 #define SPI_CHAN_EEPROM1                        2
 #define SPI_EEPROM1_CS                          PB12 
 #define MARLIN_EEPROM_SIZE 						0x1000   // 4KB
-#define E2END 									0xFFF
+//#define E2END 									0xFFF
 
 // Note: MKS Robin board is using SPI2 interface.
 //
 #define SPI_DEVICE                             2
-#define SPI_MODULE                           2 //Replaced by SPI_DEVICE in 2.0.8?
-#define ENABLE_SPI2
+//#define SPI_MODULE                           2 //Replaced by SPI_DEVICE in 2.0.8?
+//#define ENABLE_SPI2
 
 //
 // Servos
@@ -190,7 +190,22 @@
 #define FIL_RUNOUT3_PIN                     PG14  // MT_DET3
 
 //
-#define PS_ON_PIN                           PG11  // PW_OFF
+// Power Supply Control
+//
+#if ENABLED(MKS_PWC)
+  #if ENABLED(TFT_LVGL_UI)
+    #undef PSU_CONTROL
+    #undef MKS_PWC
+    #define SUICIDE_PIN                     PG11
+    #define SUICIDE_PIN_STATE               LOW
+  #else
+    #define PS_ON_PIN                       PG11  // PW_OFF
+  #endif
+  #define KILL_PIN                          PA2
+  #define KILL_PIN_STATE                    HIGH
+#endif
+
+//
 // SD Card
 //
 #ifndef SDCARD_CONNECTION
@@ -284,14 +299,10 @@
 #endif
 
 // Alter timing for graphical display
-#ifndef BOARD_ST7920_DELAY_1
-  #define BOARD_ST7920_DELAY_1     DELAY_NS(750)  //DELAY_NS(125) JGMaker
-#endif
-#ifndef BOARD_ST7920_DELAY_2
-  #define BOARD_ST7920_DELAY_2     DELAY_NS(750)  //DELAY_NS(125) JGMaker
-#endif
-#ifndef BOARD_ST7920_DELAY_3
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(750)  //DELAY_NS(125) JGMaker
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2               125
+  #define BOARD_ST7920_DELAY_3               125
 #endif
 
 

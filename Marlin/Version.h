@@ -26,7 +26,7 @@
 ////////////////////////////////////
 
 /**
- * Marlin release version identifier //BASED on 2.0.8
+ * Marlin release version identifier //BASED on 2.0.9.3
  */
 #define SHORT_BUILD_VERSION "2022.0.2"
 

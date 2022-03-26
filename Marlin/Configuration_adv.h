@@ -30,7 +30,7 @@
  *
  * Basic settings can be found in Configuration.h
  */
-#define CONFIGURATION_ADV_H_VERSION 020008
+#define CONFIGURATION_ADV_H_VERSION 02000903
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -125,10 +125,42 @@
   #define PROBE_BETA                   3950    // Beta value
 #endif
 
-//
-// Hephestos 2 24V heated bed upgrade kit.
-// https://store.bq.com/en/heated-bed-kit-hephestos2
-//
+#if TEMP_SENSOR_BOARD == 1000
+  #define BOARD_PULLUP_RESISTOR_OHMS   4700    // Pullup resistor
+  #define BOARD_RESISTANCE_25C_OHMS    100000  // Resistance at 25C
+  #define BOARD_BETA                   3950    // Beta value
+#endif
+
+#if TEMP_SENSOR_REDUNDANT == 1000
+  #define REDUNDANT_PULLUP_RESISTOR_OHMS   4700    // Pullup resistor
+  #define REDUNDANT_RESISTANCE_25C_OHMS    100000  // Resistance at 25C
+  #define REDUNDANT_BETA                   3950    // Beta value
+#endif
+
+/**
+ * Configuration options for MAX Thermocouples (-2, -3, -5).
+ *   FORCE_HW_SPI:   Ignore SCK/MOSI/MISO pins and just use the CS pin & default SPI bus.
+ *   MAX31865_WIRES: Set the number of wires for the probe connected to a MAX31865 board, 2-4. Default: 2
+ *   MAX31865_50HZ:  Enable 50Hz filter instead of the default 60Hz.
+ *   MAX31865_USE_READ_ERROR_DETECTION: Detects random read errors from value spikes (a 20°C difference in less than 1sec)
+ *   MAX31865_USE_AUTO_MODE: Faster and more frequent reads than 1-shot, but bias voltage always on, slightly affecting RTD temperature.
+ *   MAX31865_MIN_SAMPLING_TIME_MSEC: in 1-shot mode, the minimum time between subsequent reads. This reduces the effect of bias voltage by leaving the sensor unpowered for longer intervals.
+ *   MAX31865_WIRE_OHMS: In 2-wire configurations, manually set the wire resistance for more accurate readings
+ */
+//#define TEMP_SENSOR_FORCE_HW_SPI
+//#define MAX31865_SENSOR_WIRES_0 2
+//#define MAX31865_SENSOR_WIRES_1 2
+//#define MAX31865_50HZ_FILTER
+//#define MAX31865_USE_READ_ERROR_DETECTION
+//#define MAX31865_USE_AUTO_MODE
+//#define MAX31865_MIN_SAMPLING_TIME_MSEC 100
+//#define MAX31865_WIRE_OHMS_0 0.0f
+//#define MAX31865_WIRE_OHMS_1 0.0f
+
+/**
+ * Hephestos 2 24V heated bed upgrade kit.
+ * https://store.bq.com/en/heated-bed-kit-hephestos2
+ */
 //#define HEPHESTOS2_HEATED_BED_KIT
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
   #undef TEMP_SENSOR_BED
@@ -163,7 +195,8 @@
 
   //#define CHAMBER_FAN               // Enable a fan on the chamber
   #if ENABLED(CHAMBER_FAN)
-    #define CHAMBER_FAN_MODE 2        // Fan control mode: 0=Static; 1=Linear increase when temp is higher than target; 2=V-shaped curve; 3=similar to 1 but fan is always on.
+    //#define CHAMBER_FAN_INDEX   2   // Index of a fan to repurpose as the chamber fan. (Default: first unused fan)
+    #define CHAMBER_FAN_MODE      2   // Fan control mode: 0=Static; 1=Linear increase when temp is higher than target; 2=V-shaped curve; 3=similar to 1 but fan is always on.
     #if CHAMBER_FAN_MODE == 0
       #define CHAMBER_FAN_BASE  255   // Chamber fan PWM (0-255)
     #elif CHAMBER_FAN_MODE == 1
@@ -204,6 +237,18 @@
   #if ENABLED(COOLER_FAN)
     #define COOLER_FAN_BASE      100  // Base Cooler fan PWM (0-255); turns on when Cooler temperature is above the target
     #define COOLER_FAN_FACTOR     25  // PWM increase per °C above target
+  #endif
+#endif
+
+//
+// Motherboard Sensor options
+//
+#if TEMP_SENSOR_BOARD
+  #define THERMAL_PROTECTION_BOARD   // Halt the printer if the board sensor leaves the temp range below.
+  #define BOARD_MINTEMP           8  // (°C)
+  #define BOARD_MAXTEMP          70  // (°C)
+  #ifndef TEMP_BOARD_PIN
+    //#define TEMP_BOARD_PIN -1      // Board temp sensor pin, if not set in pins file.
   #endif
 #endif
 
@@ -294,14 +339,14 @@
  * Thermal Protection parameters for the laser cooler.
  */
 #if ENABLED(THERMAL_PROTECTION_COOLER)
-  #define THERMAL_PROTECTION_COOLER_PERIOD    10 // Seconds
-  #define THERMAL_PROTECTION_COOLER_HYSTERESIS 3 // Degrees Celsius
+  #define THERMAL_PROTECTION_COOLER_PERIOD     10 // Seconds
+  #define THERMAL_PROTECTION_COOLER_HYSTERESIS  3 // Degrees Celsius
 
   /**
    * Laser cooling watch settings (M143/M193).
    */
-  #define WATCH_COOLER_TEMP_PERIOD            60 // Seconds
-  #define WATCH_COOLER_TEMP_INCREASE           3 // Degrees Celsius
+  #define WATCH_COOLER_TEMP_PERIOD             60 // Seconds
+  #define WATCH_COOLER_TEMP_INCREASE            3 // Degrees Celsius
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -379,7 +424,7 @@
  */
 #define AUTOTEMP
 #if ENABLED(AUTOTEMP)
-  #define AUTOTEMP_OLDWEIGHT    0.98
+  #define AUTOTEMP_OLDWEIGHT    0.98  // Factor used to weight previous readings (0.0 < value < 1.0)
   // Turn on AUTOTEMP on M104/M109 by default using proportions set here
   //#define AUTOTEMP_PROPORTIONAL
   #if ENABLED(AUTOTEMP_PROPORTIONAL)
@@ -463,16 +508,20 @@
  */
 //#define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
-  //#define CONTROLLER_FAN_PIN -1        // Set a custom pin for the controller fan
-  //#define CONTROLLER_FAN_USE_Z_ONLY    // With this option only the Z axis is considered
-  //#define CONTROLLER_FAN_IGNORE_Z      // Ignore Z stepper. Useful when stepper timeout is disabled.
-  #define CONTROLLERFAN_SPEED_MIN      0 // (0-255) Minimum speed. (If set below this value the fan is turned off.)
-  #define CONTROLLERFAN_SPEED_ACTIVE 255 // (0-255) Active speed, used when any motor is enabled
-  #define CONTROLLERFAN_SPEED_IDLE     0 // (0-255) Idle speed, used when motors are disabled
-  #define CONTROLLERFAN_IDLE_TIME     60 // (seconds) Extra time to keep the fan running after disabling motors
-  //#define CONTROLLER_FAN_EDITABLE      // Enable M710 configurable settings
+  //#define CONTROLLER_FAN_PIN -1           // Set a custom pin for the controller fan
+  //#define CONTROLLER_FAN_USE_Z_ONLY       // With this option only the Z axis is considered
+  //#define CONTROLLER_FAN_IGNORE_Z         // Ignore Z stepper. Useful when stepper timeout is disabled.
+  #define CONTROLLERFAN_SPEED_MIN         0 // (0-255) Minimum speed. (If set below this value the fan is turned off.)
+  #define CONTROLLERFAN_SPEED_ACTIVE    255 // (0-255) Active speed, used when any motor is enabled
+  #define CONTROLLERFAN_SPEED_IDLE        0 // (0-255) Idle speed, used when motors are disabled
+  #define CONTROLLERFAN_IDLE_TIME        60 // (seconds) Extra time to keep the fan running after disabling motors
+
+  // Use TEMP_SENSOR_BOARD as a trigger for enabling the controller fan
+  //#define CONTROLLER_FAN_MIN_BOARD_TEMP 40  // (°C) Turn on the fan if the board reaches this temperature
+
+  //#define CONTROLLER_FAN_EDITABLE         // Enable M710 configurable settings
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
-    #define CONTROLLER_FAN_MENU          // Enable the Controller Fan submenu
+    #define CONTROLLER_FAN_MENU             // Enable the Controller Fan submenu
   #endif
 #endif
 
@@ -500,18 +549,21 @@
 //#define FAN_MAX_PWM 128
 
 /**
- * FAST PWM FAN Settings
+ * Fan Fast PWM
  *
- * Use to change the FAST FAN PWM frequency (if enabled in Configuration.h)
- * Combinations of PWM Modes, prescale values and TOP resolutions are used internally to produce a
- * frequency as close as possible to the desired frequency.
+ * Combinations of PWM Modes, prescale values and TOP resolutions are used internally
+ * to produce a frequency as close as possible to the desired frequency.
  *
- * FAST_PWM_FAN_FREQUENCY [undefined by default]
+ * FAST_PWM_FAN_FREQUENCY
  *   Set this to your desired frequency.
- *   If left undefined this defaults to F = F_CPU/(2*255*1)
- *   i.e., F = 31.4kHz on 16MHz microcontrollers or F = 39.2kHz on 20MHz microcontrollers.
- *   These defaults are the same as with the old FAST_PWM_FAN implementation - no migration is required
+ *   For AVR, if left undefined this defaults to F = F_CPU/(2*255*1)
+ *            i.e., F = 31.4kHz on 16MHz microcontrollers or F = 39.2kHz on 20MHz microcontrollers.
+ *   For non AVR, if left undefined this defaults to F = 1Khz.
+ *   This F value is only to protect the hardware from an absence of configuration
+ *   and not to complete it when users are not aware that the frequency must be specifically set to support the target board.
+ *
  *   NOTE: Setting very low frequencies (< 10 Hz) may result in unexpected timer behavior.
+ *         Setting very high frequencies can damage your hardware.
  *
  * USE_OCR2A_AS_TOP [undefined by default]
  *   Boards that use TIMER2 for PWM have limitations resulting in only a few possible frequencies on TIMER2:
@@ -521,10 +573,23 @@
  *   PWM on pin OC2A. Only use this option if you don't need PWM on 0C2A. (Check your schematic.)
  *   USE_OCR2A_AS_TOP sacrifices duty cycle control resolution to achieve this broader range of frequencies.
  */
+//#define FAST_PWM_FAN    // Increase the fan PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
 #if ENABLED(FAST_PWM_FAN)
-  //#define FAST_PWM_FAN_FREQUENCY 31400
+  //#define FAST_PWM_FAN_FREQUENCY 31400  // Define here to override the defaults below
   //#define USE_OCR2A_AS_TOP
+  #ifndef FAST_PWM_FAN_FREQUENCY
+    #ifdef __AVR__
+      #define FAST_PWM_FAN_FREQUENCY ((F_CPU) / (2 * 255 * 1))
+    #else
+      #define FAST_PWM_FAN_FREQUENCY 1000U
+    #endif
+  #endif
 #endif
+
+/**
+ * Use one of the PWM fans as a redundant part-cooling fan
+ */
+//#define REDUNDANT_PART_COOLING_FAN 2  // Index of the fan to sync with FAN 0.
 
 // @section extruder
 
@@ -558,6 +623,40 @@
 #define CHAMBER_AUTO_FAN_SPEED 255
 #define COOLER_AUTO_FAN_TEMPERATURE 18
 #define COOLER_AUTO_FAN_SPEED 255
+
+/**
+ * Hotend Cooling Fans tachometers
+ *
+ * Define one or more tachometer pins to enable fan speed
+ * monitoring, and reporting of fan speeds with M123.
+ *
+ * NOTE: Only works with fans up to 7000 RPM.
+ */
+//#define FOURWIRES_FANS      // Needed with AUTO_FAN when 4-wire PWM fans are installed
+//#define E0_FAN_TACHO_PIN -1
+//#define E0_FAN_TACHO_PULLUP
+//#define E0_FAN_TACHO_PULLDOWN
+//#define E1_FAN_TACHO_PIN -1
+//#define E1_FAN_TACHO_PULLUP
+//#define E1_FAN_TACHO_PULLDOWN
+//#define E2_FAN_TACHO_PIN -1
+//#define E2_FAN_TACHO_PULLUP
+//#define E2_FAN_TACHO_PULLDOWN
+//#define E3_FAN_TACHO_PIN -1
+//#define E3_FAN_TACHO_PULLUP
+//#define E3_FAN_TACHO_PULLDOWN
+//#define E4_FAN_TACHO_PIN -1
+//#define E4_FAN_TACHO_PULLUP
+//#define E4_FAN_TACHO_PULLDOWN
+//#define E5_FAN_TACHO_PIN -1
+//#define E5_FAN_TACHO_PULLUP
+//#define E5_FAN_TACHO_PULLDOWN
+//#define E6_FAN_TACHO_PIN -1
+//#define E6_FAN_TACHO_PULLUP
+//#define E6_FAN_TACHO_PULLDOWN
+//#define E7_FAN_TACHO_PIN -1
+//#define E7_FAN_TACHO_PULLUP
+//#define E7_FAN_TACHO_PULLDOWN
 
 /**
  * Part-Cooling Fan Multiplexer
@@ -671,6 +770,12 @@
   #endif
 #endif
 
+// Drive the E axis with two synchronized steppers
+//#define E_DUAL_STEPPER_DRIVERS
+#if ENABLED(E_DUAL_STEPPER_DRIVERS)
+  //#define INVERT_E1_VS_E0_DIR   // Enable if the E motors need opposite DIR states
+#endif
+
 /**
  * Dual X Carriage
  *
@@ -734,7 +839,7 @@
  * the position of the toolhead relative to the workspace.
  */
 
-//#define SENSORLESS_BACKOFF_MM  { 2, 2 }     // (mm) Backoff from endstops before sensorless homing
+//#define SENSORLESS_BACKOFF_MM  { 2, 2, 0 }  // (mm) Backoff from endstops before sensorless homing
 
 #define HOMING_BUMP_MM      { 5, 5, 2 }       // (mm) Backoff from endstops after first bump
 #define HOMING_BUMP_DIVISOR { 2, 2, 4 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
@@ -803,12 +908,14 @@
   //#define BLTOUCH_FORCE_MODE_SET
 
   /**
-   * Use "HIGH SPEED" mode for probing.
+   * Enable "HIGH SPEED" option for probing.
    * Danger: Disable if your probe sometimes fails. Only suitable for stable well-adjusted systems.
    * This feature was designed for Deltabots with very fast Z moves; however, higher speed Cartesians
    * might be able to use it. If the machine can't raise Z fast enough the BLTouch may go into ALARM.
+   *
+   * Set the default state here, change with 'M401 S' or UI, use M500 to save, M502 to reset.
    */
-  //#define BLTOUCH_HS_MODE
+  //#define BLTOUCH_HS_MODE true
 
   // Safety: Enable voltage mode settings in the LCD menu.
   //#define BLTOUCH_LCD_VOLTAGE_MENU
@@ -918,6 +1025,9 @@
 #define INVERT_X_STEP_PIN false
 #define INVERT_Y_STEP_PIN false
 #define INVERT_Z_STEP_PIN false
+#define INVERT_I_STEP_PIN false
+#define INVERT_J_STEP_PIN false
+#define INVERT_K_STEP_PIN false
 #define INVERT_E_STEP_PIN false
 
 /**
@@ -929,6 +1039,9 @@
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
 #define DISABLE_INACTIVE_Z true  // Set 'false' if the nozzle could fall onto your printed part!
+#define DISABLE_INACTIVE_I true
+#define DISABLE_INACTIVE_J true
+#define DISABLE_INACTIVE_K true
 #define DISABLE_INACTIVE_E true
 
 // Default Minimum Feedrates for printing and travel moves
@@ -1039,6 +1152,13 @@
   #define CALIBRATION_MEASURE_FRONT
   #define CALIBRATION_MEASURE_LEFT
   #define CALIBRATION_MEASURE_BACK
+
+  //#define CALIBRATION_MEASURE_IMIN
+  //#define CALIBRATION_MEASURE_IMAX
+  //#define CALIBRATION_MEASURE_JMIN
+  //#define CALIBRATION_MEASURE_JMAX
+  //#define CALIBRATION_MEASURE_KMIN
+  //#define CALIBRATION_MEASURE_KMAX
 
   // Probing at the exact top center only works if the center is flat. If
   // probing on a screwhead or hollow washer, probe near the edges.
@@ -1562,7 +1682,7 @@
    */
   //#define STATUS_COMBINE_HEATERS    // Use combined heater images instead of separate ones
   //#define STATUS_HOTEND_NUMBERLESS  // Use plain hotend icons instead of numbered ones (with 2+ hotends)
-  #define STATUS_HOTEND_INVERTED      // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM)
+  #define STATUS_HOTEND_INVERTED      // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM for numbered hotends)
   #define STATUS_HOTEND_ANIM          // Use a second bitmap to indicate hotend heating
   #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
   #define STATUS_CHAMBER_ANIM         // Use a second bitmap to indicate chamber heating
@@ -1571,17 +1691,28 @@
   //#define STATUS_FLOWMETER_ANIM     // Use multiple bitmaps to indicate coolant flow
   //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
-  #define STATUS_FAN_FRAMES 4       // :[0,1,2,3,4] Number of fan animation frames
+  #define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
   #define STATUS_HEAT_PERCENT       // Show heating in a progress bar
-  #define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
+  #define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~3260 (or ~940) bytes of PROGMEM.
 
   // Frivolous Game Options
-  #define MARLIN_BRICKOUT
-  #define MARLIN_INVADERS
+  //#define MARLIN_BRICKOUT
+  //#define MARLIN_INVADERS
   //#define MARLIN_SNAKE
   //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 
 #endif // HAS_MARLINUI_U8GLIB
+
+#if HAS_MARLINUI_U8GLIB || IS_DWIN_MARLINUI
+  // Show SD percentage next to the progress bar
+  //#define SHOW_SD_PERCENT
+
+  // Enable to save many cycles by drawing a hollow frame on Menu Screens
+  #define MENU_HOLLOW_FRAME
+
+  // Swap the CW/CCW indicators in the graphics overlay
+  //#define OVERLAY_GFX_REVERSE
+#endif
 
 //
 // Additional options for DGUS / DWIN displays
@@ -1648,7 +1779,7 @@
 //
 // Specify additional languages for the UI. Default specified by LCD_LANGUAGE.
 //
-#if ANY(DOGLCD, TFT_COLOR_UI, TOUCH_UI_FTDI_EVE)
+#if ANY(DOGLCD, TFT_COLOR_UI, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
   //#define LCD_LANGUAGE_2 fr
   //#define LCD_LANGUAGE_3 de
   //#define LCD_LANGUAGE_4 es
@@ -1667,7 +1798,7 @@
   //#define LCD_4DSYSTEMS_4DLCD_FT843 // 4D Systems 4.3" (480x272)
   //#define LCD_HAOYU_FT800CB         // Haoyu with 4.3" or 5" (480x272)
   //#define LCD_HAOYU_FT810CB         // Haoyu with 5" (800x480)
-  //#define LCD_ALEPHOBJECTS_CLCD_UI  // Aleph Objects Color LCD UI
+  //#define LCD_LULZBOT_CLCD_UI       // LulzBot Color LCD UI
   //#define LCD_FYSETC_TFT81050       // FYSETC with 5" (800x480)
   //#define LCD_EVE3_50G              // Matrix Orbital 5.0", 800x480, BT815
   //#define LCD_EVE2_50G              // Matrix Orbital 5.0", 800x480, FT813
@@ -1678,8 +1809,8 @@
   //#define TOUCH_UI_800x480
 
   // Mappings for boards with a standard RepRapDiscount Display connector
-  //#define AO_EXP1_PINMAP      // AlephObjects CLCD UI EXP1 mapping
-  //#define AO_EXP2_PINMAP      // AlephObjects CLCD UI EXP2 mapping
+  //#define AO_EXP1_PINMAP      // LulzBot CLCD UI EXP1 mapping
+  //#define AO_EXP2_PINMAP      // LulzBot CLCD UI EXP2 mapping
   //#define CR10_TFT_PINMAP     // Rudolph Riedel's CR10 pin mapping
   //#define S6_TFT_PINMAP       // FYSETC S6 pin mapping
   //#define F6_TFT_PINMAP       // FYSETC F6 pin mapping
@@ -1843,6 +1974,7 @@
   #define LIN_ADVANCE_K 0.0   // Unit: mm compression per 1mm/s extruder speed
   //#define LA_DEBUG            // If enabled, this will generate debug information output over USB.
   //#define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
+  //#define ALLOW_LOW_EJERK     // Allow a DEFAULT_EJERK value of <10. Recommended for direct drive hotends.
 #endif
 
 // @section leveling
@@ -1918,59 +2050,69 @@
 
 /**
  * Thermal Probe Compensation
- * Probe measurements are adjusted to compensate for temperature distortion.
- * Use G76 to calibrate this feature. Use M871 to set values manually.
- * For a more detailed explanation of the process see G76_M871.cpp.
+ *
+ * Adjust probe measurements to compensate for distortion associated with the temperature
+ * of the probe, bed, and/or hotend.
+ * Use G76 to automatically calibrate this feature for probe and bed temperatures.
+ * (Extruder temperature/offset values must be calibrated manually.)
+ * Use M871 to set temperature/offset values manually.
+ * For more details see https://marlinfw.org/docs/features/probe_temp_compensation.html
  */
-#if HAS_BED_PROBE && TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
-  // Enable thermal first layer compensation using bed and probe temperatures
-  #define PROBE_TEMP_COMPENSATION
+//#define PTC_PROBE    // Compensate based on probe temperature
+//#define PTC_BED      // Compensate based on bed temperature
+//#define PTC_HOTEND   // Compensate based on hotend temperature
 
-  // Add additional compensation depending on hotend temperature
-  // Note: this values cannot be calibrated and have to be set manually
-  #if ENABLED(PROBE_TEMP_COMPENSATION)
+#if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
+  /**
+   * If the probe is outside the defined range, use linear extrapolation with the closest
+   * point and the point with index PTC_LINEAR_EXTRAPOLATION. e.g., If set to 4 it will use the
+   * linear extrapolation between data[0] and data[4] for values below PTC_PROBE_START.
+   */
+  //#define PTC_LINEAR_EXTRAPOLATION 4
+
+  #if ENABLED(PTC_PROBE)
+    // Probe temperature calibration generates a table of values starting at PTC_PROBE_START
+    // (e.g., 30), in steps of PTC_PROBE_RES (e.g., 5) with PTC_PROBE_COUNT (e.g., 10) samples.
+    #define PTC_PROBE_START   30    // (°C)
+    #define PTC_PROBE_RES      5    // (°C)
+    #define PTC_PROBE_COUNT   10
+    #define PTC_PROBE_ZOFFS   { 0 } // (µm) Z adjustments per sample
+  #endif
+
+  #if ENABLED(PTC_BED)
+    // Bed temperature calibration builds a similar table.
+    #define PTC_BED_START     60    // (°C)
+    #define PTC_BED_RES        5    // (°C)
+    #define PTC_BED_COUNT     10
+    #define PTC_BED_ZOFFS     { 0 } // (µm) Z adjustments per sample
+  #endif
+
+  #if ENABLED(PTC_HOTEND)
+    // Note: There is no automatic calibration for the hotend. Use M871.
+    #define PTC_HOTEND_START 180    // (°C)
+    #define PTC_HOTEND_RES     5    // (°C)
+    #define PTC_HOTEND_COUNT  20
+    #define PTC_HOTEND_ZOFFS  { 0 } // (µm) Z adjustments per sample
+  #endif
+
+  // G76 options
+  #if BOTH(PTC_PROBE, PTC_BED)
     // Park position to wait for probe cooldown
     #define PTC_PARK_POS   { 0, 0, 100 }
 
     // Probe position to probe and wait for probe to reach target temperature
+    //#define PTC_PROBE_POS  { 12.0f, 7.3f } // Example: MK52 magnetic heatbed
     #define PTC_PROBE_POS  { 90, 100 }
 
-    // Enable additional compensation using hotend temperature
-    // Note: this values cannot be calibrated automatically but have to be set manually
-    //#define USE_TEMP_EXT_COMPENSATION
+    // The temperature the probe should be at while taking measurements during
+    // bed temperature calibration.
+    #define PTC_PROBE_TEMP    30  // (°C)
 
-    // Probe temperature calibration generates a table of values starting at PTC_SAMPLE_START
-    // (e.g. 30), in steps of PTC_SAMPLE_RES (e.g. 5) with PTC_SAMPLE_COUNT (e.g. 10) samples.
-
-    //#define PTC_SAMPLE_START  30.0f
-    //#define PTC_SAMPLE_RES    5.0f
-    //#define PTC_SAMPLE_COUNT  10U
-
-    // Bed temperature calibration builds a similar table.
-
-    //#define BTC_SAMPLE_START  60.0f
-    //#define BTC_SAMPLE_RES    5.0f
-    //#define BTC_SAMPLE_COUNT  10U
-
-    // The temperature the probe should be at while taking measurements during bed temperature
-    // calibration.
-    //#define BTC_PROBE_TEMP 30.0f
-
-    // Height above Z=0.0f to raise the nozzle. Lowering this can help the probe to heat faster.
-    // Note: the Z=0.0f offset is determined by the probe offset which can be set using M851.
-    //#define PTC_PROBE_HEATING_OFFSET 0.5f
-
-    // Height to raise the Z-probe between heating and taking the next measurement. Some probes
-    // may fail to untrigger if they have been triggered for a long time, which can be solved by
-    // increasing the height the probe is raised to.
-    //#define PTC_PROBE_RAISE 15U
-
-    // If the probe is outside of the defined range, use linear extrapolation using the closest
-    // point and the PTC_LINEAR_EXTRAPOLATION'th next point. E.g. if set to 4 it will use data[0]
-    // and data[4] to perform linear extrapolation for values below PTC_SAMPLE_START.
-    //#define PTC_LINEAR_EXTRAPOLATION 4
+    // Height above Z=0.0 to raise the nozzle. Lowering this can help the probe to heat faster.
+    // Note: The Z=0.0 offset is determined by the probe Z offset (e.g., as set with M851 Z).
+    #define PTC_PROBE_HEATING_OFFSET 0.5
   #endif
-#endif
+#endif // PTC_PROBE || PTC_BED || PTC_HOTEND
 
 // @section extras
 
@@ -1982,20 +2124,23 @@
 //
 // G2/G3 Arc Support
 //
-#define ARC_SUPPORT                 // Disable this feature to save ~3226 bytes
+#define ARC_SUPPORT                   // Requires ~3226 bytes
 #if ENABLED(ARC_SUPPORT)
-  #define MM_PER_ARC_SEGMENT      1 // (mm) Length (or minimum length) of each arc segment
-  //#define ARC_SEGMENTS_PER_R    1 // Max segment length, MM_PER = Min
-  #define MIN_ARC_SEGMENTS       24 // Minimum number of segments in a complete circle
-  //#define ARC_SEGMENTS_PER_SEC 50 // Use feedrate to choose segment length (with MM_PER_ARC_SEGMENT as the minimum)
-  #define N_ARC_CORRECTION       25 // Number of interpolated segments between corrections
-  //#define ARC_P_CIRCLES           // Enable the 'P' parameter to specify complete circles
-  //#define CNC_WORKSPACE_PLANES    // Allow G2/G3 to operate in XY, ZX, or YZ planes
-  //#define SF_ARC_FIX              // Enable only if using SkeinForge with "Arc Point" fillet procedure
+  #define MIN_ARC_SEGMENT_MM      0.1 // (mm) Minimum length of each arc segment
+  #define MAX_ARC_SEGMENT_MM      1.0 // (mm) Maximum length of each arc segment
+  #define MIN_CIRCLE_SEGMENTS    72   // Minimum number of segments in a complete circle
+  //#define ARC_SEGMENTS_PER_SEC 50   // Use the feedrate to choose the segment length
+  #define N_ARC_CORRECTION       25   // Number of interpolated segments between corrections
+  //#define ARC_P_CIRCLES             // Enable the 'P' parameter to specify complete circles
+  //#define SF_ARC_FIX                // Enable only if using SkeinForge with "Arc Point" fillet procedure
 #endif
 
-// Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
-//#define BEZIER_CURVE_SUPPORT
+// G5 Bézier Curve Support with XYZE destination and IJPQ offsets
+//#define BEZIER_CURVE_SUPPORT        // Requires ~2666 bytes
+
+#if EITHER(ARC_SUPPORT, BEZIER_CURVE_SUPPORT)
+  //#define CNC_WORKSPACE_PLANES      // Allow G2/G3/G5 to operate in XY, ZX, or YZ planes
+#endif
 
 /**
  * Direct Stepping

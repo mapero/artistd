@@ -35,7 +35,7 @@
  *
  * Advanced settings can be found in Configuration_adv.h
  */
-#define CONFIGURATION_H_VERSION 020008
+#define CONFIGURATION_H_VERSION 02000903
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -432,11 +432,6 @@
 //#define MAX31865_SENSOR_OHMS_1      100
 //#define MAX31865_CALIBRATION_OHMS_1 430
 
-// Use temp sensor 1 as a redundant sensor with sensor 0. If the readings
-// from the two sensors differ too much the print will be aborted.
-//#define TEMP_SENSOR_1_AS_REDUNDANT
-#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
-
 #define TEMP_RESIDENCY_TIME         10  // (seconds) Time to wait for hotend to "settle" in M109
 #define TEMP_WINDOW                  1  // (°C) Temperature proximity for the "temperature reached" timer
 #define TEMP_HYSTERESIS              3  // (°C) Temperature proximity considered "close enough" to the target
@@ -448,6 +443,22 @@
 #define TEMP_CHAMBER_RESIDENCY_TIME 10  // (seconds) Time to wait for chamber to "settle" in M191
 #define TEMP_CHAMBER_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
 #define TEMP_CHAMBER_HYSTERESIS      3  // (°C) Temperature proximity considered "close enough" to the target
+
+/**
+ * Redundant Temperature Sensor (TEMP_SENSOR_REDUNDANT)
+ *
+ * Use a temp sensor as a redundant sensor for another reading. Select an unused temperature sensor, and another
+ * sensor you'd like it to be redundant for. If the two thermistors differ by TEMP_SENSOR_REDUNDANT_MAX_DIFF (°C),
+ * the print will be aborted. Whichever sensor is selected will have its normal functions disabled; i.e. selecting
+ * the Bed sensor (-1) will disable bed heating/monitoring.
+ *
+ * For selecting source/target use: COOLER, PROBE, BOARD, CHAMBER, BED, E0, E1, E2, E3, E4, E5, E6, E7
+ */
+#if TEMP_SENSOR_REDUNDANT
+  #define TEMP_SENSOR_REDUNDANT_SOURCE    E1  // The sensor that will provide the redundant reading.
+  #define TEMP_SENSOR_REDUNDANT_TARGET    E0  // The sensor that we are providing a redundant reading for.
+  #define TEMP_SENSOR_REDUNDANT_MAX_DIFF  10  // (°C) Temperature difference that will trigger a print abort.
+#endif
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
@@ -504,8 +515,8 @@
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
 
   #if ENABLED(PID_PARAMS_PER_HOTEND)
-    // Specify between 1 and HOTENDS values per array.
-    // If fewer than EXTRUDER values are provided, the last element will be repeated.
+    // Specify up to one value per hotend here, according to your setup.
+    // If there are fewer values, the last one applies to the remaining hotends.
     #define DEFAULT_Kp_LIST {  22.20,  22.20 }
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
@@ -666,6 +677,17 @@
 //#define COREZX
 //#define COREZY
 //#define MARKFORGED_XY  // MarkForged. See https://reprap.org/forum/read.php?152,504042
+//#define MARKFORGED_YX
+
+// Enable for a belt style printer with endless "Z" motion
+//#define BELTPRINTER
+
+// Enable for Polargraph Kinematics
+//#define POLARGRAPH
+#if ENABLED(POLARGRAPH)
+  #define POLARGRAPH_MAX_BELT_LEN 1035.0
+  #define POLAR_SEGMENTS_PER_SECOND 5
+#endif
 
 //===========================================================================
 //============================== Endstop Settings ===========================
@@ -679,20 +701,32 @@
 #define USE_XMIN_PLUG
 #define USE_YMIN_PLUG
 #define USE_ZMIN_PLUG
+//#define USE_IMIN_PLUG
+//#define USE_JMIN_PLUG
+//#define USE_KMIN_PLUG
 #define USE_XMAX_PLUG //TwinkieXLII
 //#define USE_YMAX_PLUG
 //#define USE_ZMAX_PLUG
+//#define USE_IMAX_PLUG
+//#define USE_JMAX_PLUG
+//#define USE_KMAX_PLUG
 
 // Enable pullup for all endstops to prevent a floating state
 #define ENDSTOPPULLUPS
 #if DISABLED(ENDSTOPPULLUPS)
   // Disable ENDSTOPPULLUPS to set pullups individually
-  //#define ENDSTOPPULLUP_XMAX
-  //#define ENDSTOPPULLUP_YMAX
-  //#define ENDSTOPPULLUP_ZMAX
   //#define ENDSTOPPULLUP_XMIN
   //#define ENDSTOPPULLUP_YMIN
   //#define ENDSTOPPULLUP_ZMIN
+  //#define ENDSTOPPULLUP_IMIN
+  //#define ENDSTOPPULLUP_JMIN
+  //#define ENDSTOPPULLUP_KMIN
+  //#define ENDSTOPPULLUP_XMAX
+  //#define ENDSTOPPULLUP_YMAX
+  //#define ENDSTOPPULLUP_ZMAX
+  //#define ENDSTOPPULLUP_IMAX
+  //#define ENDSTOPPULLUP_JMAX
+  //#define ENDSTOPPULLUP_KMAX
   //#define ENDSTOPPULLUP_ZMIN_PROBE
 #endif
 
@@ -700,12 +734,18 @@
 //#define ENDSTOPPULLDOWNS
 #if DISABLED(ENDSTOPPULLDOWNS)
   // Disable ENDSTOPPULLDOWNS to set pulldowns individually
-  //#define ENDSTOPPULLDOWN_XMAX
-  //#define ENDSTOPPULLDOWN_YMAX
-  //#define ENDSTOPPULLDOWN_ZMAX
   //#define ENDSTOPPULLDOWN_XMIN
   //#define ENDSTOPPULLDOWN_YMIN
   //#define ENDSTOPPULLDOWN_ZMIN
+  //#define ENDSTOPPULLDOWN_IMIN
+  //#define ENDSTOPPULLDOWN_JMIN
+  //#define ENDSTOPPULLDOWN_KMIN
+  //#define ENDSTOPPULLDOWN_XMAX
+  //#define ENDSTOPPULLDOWN_YMAX
+  //#define ENDSTOPPULLDOWN_ZMAX
+  //#define ENDSTOPPULLDOWN_IMAX
+  //#define ENDSTOPPULLDOWN_JMAX
+  //#define ENDSTOPPULLDOWN_KMAX
   //#define ENDSTOPPULLDOWN_ZMIN_PROBE
 #endif
 
