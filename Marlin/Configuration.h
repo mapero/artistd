@@ -157,33 +157,19 @@
 #endif
 
 /**
- * Průša MK2 Single Nozzle Multi-Material Multiplexer, and variants.
+ * Multi-Material Unit
+ * Set to one of these predefined models:
  *
- * This device allows one stepper driver on a control board to drive
- * two to eight stepper motors, one at a time, in a manner suitable
- * for extruders.
- *
- * This option only allows the multiplexer to switch on tool-change.
- * Additional options to configure custom E moves are pending.
- */
-//#define MK2_MULTIPLEXER
-#if ENABLED(MK2_MULTIPLEXER)
-  // Override the default DIO selector pins here, if needed.
-  // Some pins files may provide defaults for these pins.
-  //#define E_MUX0_PIN 40  // Always Required
-  //#define E_MUX1_PIN 42  // Needed for 3 to 8 inputs
-  //#define E_MUX2_PIN 44  // Needed for 5 to 8 inputs
-#endif
-
-/**
- * Průša Multi-Material Unit v2
+ *   PRUSA_MMU1           : Průša MMU1 (The "multiplexer" version)
+ *   PRUSA_MMU2           : Průša MMU2
+ *   PRUSA_MMU2S          : Průša MMU2S (Requires MK3S extruder with motion sensor, EXTRUDERS = 5)
+ *   EXTENDABLE_EMU_MMU2  : MMU with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
+ *   EXTENDABLE_EMU_MMU2S : MMUS with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
  *
  * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
- * Requires EXTRUDERS = 5
- *
- * For additional configuration see Configuration_adv.h
+ * See additional options in Configuration_adv.h.
  */
-//#define PRUSA_MMU2
+//#define MMU_MODEL PRUSA_MMU2
 
 // A dual extruder that uses a single stepper motor
 //#define SWITCHING_EXTRUDER
@@ -334,15 +320,21 @@
   //#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
   //#define PSU_POWERUP_DELAY 250   // (ms) Delay for the PSU to warm up to full power
 
+  //#define PSU_POWERUP_GCODE  "M355 S1"  // G-code to run after power-on (e.g., case light on)
+  //#define PSU_POWEROFF_GCODE "M355 S0"  // G-code to run before power-off (e.g., case light off)
+
   //#define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
   #if ENABLED(AUTO_POWER_CONTROL)
     #define AUTO_POWER_FANS         // Turn on PSU if fans need power
     #define AUTO_POWER_E_FANS
     #define AUTO_POWER_CONTROLLERFAN
     #define AUTO_POWER_CHAMBER_FAN
-    //#define AUTO_POWER_E_TEMP        50 // (°C) Turn on PSU over this temperature
-    //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) Turn on PSU over this temperature
-    #define POWER_TIMEOUT 30
+    #define AUTO_POWER_COOLER_FAN
+    //#define AUTO_POWER_E_TEMP        50 // (°C) Turn on PSU if any extruder is over this temperature
+    //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) Turn on PSU if the chamber is over this temperature
+    //#define AUTO_POWER_COOLER_TEMP   26 // (°C) Turn on PSU if the cooler is over this temperature
+    #define POWER_TIMEOUT              30 // (s) Turn off power if the machine is idle for this duration
+    //#define POWER_OFF_DELAY          60 // (s) Delay of poweroff after M81 command. Useful to let fans run for extra time.
   #endif
 #endif
 
@@ -428,9 +420,10 @@
 #define TEMP_SENSOR_BED 1  //TwinkieXLII
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
+#define TEMP_SENSOR_COOLER 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
-#define DUMMY_THERMISTOR_998_VALUE 25
+#define DUMMY_THERMISTOR_998_VALUE  25
 #define DUMMY_THERMISTOR_999_VALUE 100
 
 // Resistor values when using MAX31865 sensors (-5) on TEMP_SENSOR_0 / 1
@@ -1153,10 +1146,18 @@
 //#define PROBING_HEATERS_OFF       // Turn heaters off when probing
 #if ENABLED(PROBING_HEATERS_OFF)
   //#define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
+  //#define WAIT_FOR_HOTEND         // Wait for hotend to heat back up between probes (to improve accuracy & prevent cold extrude)
 #endif
 //#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
+
+// Require minimum nozzle and/or bed temperature for probing
+//#define PREHEAT_BEFORE_PROBING
+#if ENABLED(PREHEAT_BEFORE_PROBING)
+  #define PROBING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
+  #define PROBING_BED_TEMP     50
+#endif
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
@@ -1200,9 +1201,15 @@
 
 // @section homing
 
-//#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed
+//#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.
+//#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.
 
-//#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
+/**
+ * Set Z_IDLE_HEIGHT if the Z-Axis moves on its own when steppers are disabled.
+ *  - Use a low value (i.e., Z_MIN_POS) if the nozzle falls down to the bed.
+ *  - Use a large value (i.e., Z_MAX_POS) if the bed falls down, away from the nozzle.
+ */
+//#define Z_IDLE_HEIGHT Z_HOME_POS
 
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
@@ -1217,7 +1224,7 @@
 
 // @section machine
 
-// The size of the print bed
+// The size of the printable area
 #define X_BED_SIZE 310   //JGMaker
 #define Y_BED_SIZE 310   //JGMaker
 
@@ -1252,7 +1259,7 @@
 #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
   #define MAX_SOFTWARE_ENDSTOP_X
   #define MAX_SOFTWARE_ENDSTOP_Y
-  //#define MAX_SOFTWARE_ENDSTOP_Z
+  #define MAX_SOFTWARE_ENDSTOP_Z
 #endif
 
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
@@ -1263,18 +1270,62 @@
  * Filament Runout Sensors
  * Mechanical or opto endstops are used to check for the presence of filament.
  *
+ * IMPORTANT: Runout will only trigger if Marlin is aware that a print job is running.
+ * Marlin knows a print job is running when:
+ *  1. Running a print job from media started with M24.
+ *  2. The Print Job Timer has been started with M75.
+ *  3. The heaters were turned on and PRINTJOB_TIMER_AUTOSTART is enabled.
+ *
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
 #define FILAMENT_RUNOUT_SENSOR   //TwinkieXLII
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   2     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-  #define FIL_RUNOUT_STATE     HIGH  // Pin state indicating that filament is NOT present.  //TwinkieXLII
-  #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
-  //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
 
-  // Set one or more commands to execute on filament runout.
-  // (After 'M412 H' Marlin will ask the host to handle the process.)
+  #define FIL_RUNOUT_STATE     HIGH  // Pin state indicating that filament is NOT present.  //TwinkieXLII
+  #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
+  //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
+  //#define WATCH_ALL_RUNOUT_SENSORS      // Execute runout script on any triggering sensor, not only for the active extruder.
+                                          // This is automatically enabled for MIXING_EXTRUDERs.
+
+  // Override individually if the runout sensors vary
+  //#define FIL_RUNOUT1_STATE LOW
+  //#define FIL_RUNOUT1_PULLUP
+  //#define FIL_RUNOUT1_PULLDOWN
+
+  //#define FIL_RUNOUT2_STATE LOW
+  //#define FIL_RUNOUT2_PULLUP
+  //#define FIL_RUNOUT2_PULLDOWN
+
+  //#define FIL_RUNOUT3_STATE LOW
+  //#define FIL_RUNOUT3_PULLUP
+  //#define FIL_RUNOUT3_PULLDOWN
+
+  //#define FIL_RUNOUT4_STATE LOW
+  //#define FIL_RUNOUT4_PULLUP
+  //#define FIL_RUNOUT4_PULLDOWN
+
+  //#define FIL_RUNOUT5_STATE LOW
+  //#define FIL_RUNOUT5_PULLUP
+  //#define FIL_RUNOUT5_PULLDOWN
+
+  //#define FIL_RUNOUT6_STATE LOW
+  //#define FIL_RUNOUT6_PULLUP
+  //#define FIL_RUNOUT6_PULLDOWN
+
+  //#define FIL_RUNOUT7_STATE LOW
+  //#define FIL_RUNOUT7_PULLUP
+  //#define FIL_RUNOUT7_PULLDOWN
+
+  //#define FIL_RUNOUT8_STATE LOW
+  //#define FIL_RUNOUT8_PULLUP
+  //#define FIL_RUNOUT8_PULLDOWN
+
+  // Commands to execute on filament runout.
+  // With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
+  // NOTE: After 'M412 H1' the host handles filament runout and this script does not apply.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 
   // After a runout is detected, continue printing this length of filament
@@ -1335,10 +1386,21 @@
 #define MESH_BED_LEVELING
 
 /**
- * Normally G28 leaves leveling disabled on completion. Enable
- * this option to have G28 restore the prior leveling state.
+ * Normally G28 leaves leveling disabled on completion. Enable one of
+ * these options to restore the prior leveling state or to always enable
+ * leveling immediately after G28.
  */
-#define RESTORE_LEVELING_AFTER_G28  //TwinkitXLII
+#define RESTORE_LEVELING_AFTER_G28
+//#define ENABLE_LEVELING_AFTER_G28
+
+/**
+ * Auto-leveling needs preheating
+ */
+//#define PREHEAT_BEFORE_LEVELING
+#if ENABLED(PREHEAT_BEFORE_LEVELING)
+  #define LEVELING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
+  #define LEVELING_BED_TEMP     50
+#endif
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -1373,10 +1435,11 @@
   #define G26_MESH_VALIDATION
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
-    #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for the G26 Mesh Validation Tool.
-    #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
-    #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for the G26 Mesh Validation Tool.
-    #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for XY Moves for the G26 Mesh Validation Tool.
+    #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for G26.
+    #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for G26.
+    #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for G26.
+    #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for G26 XY moves.
+    #define G26_XY_FEEDRATE_TRAVEL 100    // (mm/s) Feedrate for G26 XY travel moves.
     #define G26_RETRACT_MULTIPLIER   1.0  // G26 Q (retraction) used by default between mesh test elements.
   #endif
 
@@ -1421,6 +1484,8 @@
   #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
+  //#define UBL_HILBERT_CURVE       // Use Hilbert distribution for less travel when probing multiple points
+
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
 
@@ -1461,6 +1526,31 @@
   #define LEVEL_CORNERS_HEIGHT      0.0   // (mm) Z height of nozzle at leveling points
   #define LEVEL_CORNERS_Z_HOP       4.0   // (mm) Z height of nozzle between leveling points
   #define LEVEL_CENTER_TOO                // Move to the center after the last corner
+  //#define LEVEL_CORNERS_USE_PROBE
+  #if ENABLED(LEVEL_CORNERS_USE_PROBE)
+    #define LEVEL_CORNERS_PROBE_TOLERANCE 0.1
+    #define LEVEL_CORNERS_VERIFY_RAISED   // After adjustment triggers the probe, re-probe to verify
+    //#define LEVEL_CORNERS_AUDIO_FEEDBACK
+  #endif
+
+  /**
+   * Corner Leveling Order
+   *
+   * Set 2 or 4 points. When 2 points are given, the 3rd is the center of the opposite edge.
+   *
+   *  LF  Left-Front    RF  Right-Front
+   *  LB  Left-Back     RB  Right-Back
+   *
+   * Examples:
+   *
+   *      Default        {LF,RB,LB,RF}         {LF,RF}           {LB,LF}
+   *  LB --------- RB   LB --------- RB    LB --------- RB   LB --------- RB
+   *  |  4       3  |   | 3         2 |    |     <3>     |   | 1           |
+   *  |             |   |             |    |             |   |          <3>|
+   *  |  1       2  |   | 1         4 |    | 1         2 |   | 2           |
+   *  LF --------- RF   LF --------- RF    LF --------- RF   LF --------- RF
+   */
+  #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, RB, LB }
 #endif
 
 /**
@@ -1604,15 +1694,19 @@
 
 // @section temperature
 
-// Preheat Constants
+//
+// Preheat Constants - Up to 5 are supported without changes
+//
 #define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 210 //180
 #define PREHEAT_1_TEMP_BED     55 //70
+#define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "PETG"
 #define PREHEAT_2_TEMP_HOTEND 230 //240
 #define PREHEAT_2_TEMP_BED    60 //110
+#define PREHEAT_2_TEMP_CHAMBER 35
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
@@ -1744,6 +1838,9 @@
  * View the current statistics with M78.
  */
 //#define PRINTCOUNTER
+#if ENABLED(PRINTCOUNTER)
+  #define PRINTCOUNTER_SAVE_INTERVAL 60 // (minutes) EEPROM save interval during print
+#endif
 
 /**
  * Password
@@ -1788,9 +1885,9 @@
  * Select the language to display on the LCD. These languages are available:
  *
  *   en, an, bg, ca, cz, da, de, el, el_gr, es, eu, fi, fr, gl, hr, hu, it,
- *   jp_kana, ko_KR, nl, pl, pt, pt_br, ro, ru, sk, tr, uk, vi, zh_CN, zh_TW, test
+ *   jp_kana, ko_KR, nl, pl, pt, pt_br, ro, ru, sk, sv, tr, uk, vi, zh_CN, zh_TW
  *
- * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
+ * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'sv':'Swedish', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)' }
  */
 #define LCD_LANGUAGE en
 
@@ -1832,16 +1929,6 @@
  * you must uncomment the following option or it won't work.
  */
 #define SDSUPPORT
-
-/**
- * SD CARD: SPI SPEED
- *
- * Enable one of the following items for a slower SPI transfer speed.
- * This may be required to resolve "volume init" errors.
- */
-//#define SPI_SPEED SPI_HALF_SPEED
-//#define SPI_SPEED SPI_QUARTER_SPEED
-//#define SPI_SPEED SPI_EIGHTH_SPEED
 
 /**
  * SD CARD: ENABLE CRC
@@ -1943,6 +2030,14 @@
 // Note: Usually sold with a white PCB.
 //
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
+
+//
+// GT2560 (YHCB2004) LCD Display
+//
+// Requires Testato, Koepel softwarewire library and
+// Andriy Golovnya's LiquidCrystal_AIP31068 library.
+//
+//#define YHCB2004
 
 //
 // Original RADDS LCD Display+Encoder+SDCardReader
@@ -2095,6 +2190,11 @@
 #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
+// K.3D Full Graphic Smart Controller
+//
+//#define K3D_FULL_GRAPHIC_SMART_CONTROLLER
+
+//
 // ReprapWorld Graphical LCD
 // https://reprapworld.com/?products_details&products_id/1218
 //
@@ -2190,9 +2290,10 @@
 //
 // Anet 128x64 full graphics lcd with rotary encoder as used on Anet A6
 // A clone of the RepRapDiscount full graphics display but with
-// different pins/wiring (see pins_ANET_10.h).
+// different pins/wiring (see pins_ANET_10.h). Enable one of these.
 //
 //#define ANET_FULL_GRAPHICS_LCD
+//#define ANET_FULL_GRAPHICS_LCD_ALT_WIRING
 
 //
 // AZSMZ 12864 LCD with SD
@@ -2230,7 +2331,7 @@
 //#define OLED_PANEL_TINYBOY2
 
 //
-// MKS OLED 1.3" 128×64 FULL GRAPHICS CONTROLLER
+// MKS OLED 1.3" 128×64 Full Graphics Controller
 // https://reprap.org/wiki/MKS_12864OLED
 //
 // Tiny, but very sharp OLED display
@@ -2239,7 +2340,7 @@
 //#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
 
 //
-// Zonestar OLED 128×64 FULL GRAPHICS CONTROLLER
+// Zonestar OLED 128×64 Full Graphics Controller
 //
 //#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
 //#define ZONESTAR_12864OLED          // 1.3" OLED with SH1106 controller (default)
@@ -2256,9 +2357,14 @@
 //#define OVERLORD_OLED
 
 //
-// FYSETC OLED 2.42" 128×64 FULL GRAPHICS CONTROLLER with WS2812 RGB
+// FYSETC OLED 2.42" 128×64 Full Graphics Controller with WS2812 RGB
 // Where to find : https://www.aliexpress.com/item/4000345255731.html
 //#define FYSETC_242_OLED_12864   // Uses the SSD1309 controller
+
+//
+// K.3D SSD1309 OLED 2.42" 128×64 Full Graphics Controller
+//
+//#define K3D_242_OLED_CONTROLLER   // Software SPI
 
 //=============================================================================
 //========================== Extensible UI Displays ===========================
@@ -2272,6 +2378,11 @@
 //#define DGUS_LCD_UI_ORIGIN
 //#define DGUS_LCD_UI_FYSETC
 //#define DGUS_LCD_UI_HIPRECY
+
+//#define DGUS_LCD_UI_MKS
+#if ENABLED(DGUS_LCD_UI_MKS)
+  #define USE_MKS_GREEN_UI
+#endif
 
 //
 // Touch-screen LCD for Malyan M200/M300 printers
@@ -2298,8 +2409,16 @@
 #endif
 
 //
+// 320x240 Nextion 2.8" serial TFT Resistive Touch Screen NX3224T028
+//
+//#define NEXTION_TFT
+#if ENABLED(NEXTION_TFT)
+  #define LCD_SERIAL_PORT 1  // Default is 1 for Nextion
+#endif
+
+//
 // Third-party or vendor-customized controller interfaces.
-// Sources should be installed in 'src/lcd/extensible_ui'.
+// Sources should be installed in 'src/lcd/extui'.
 //
 //#define EXTENSIBLE_UI
 
@@ -2391,6 +2510,19 @@
 // Generic TFT with detailed options
 //
 //#define TFT_GENERIC
+#if ENABLED(TFT_GENERIC)
+  // :[ 'AUTO', 'ST7735', 'ST7789', 'ST7796', 'R61505', 'ILI9328', 'ILI9341', 'ILI9488' ]
+  #define TFT_DRIVER AUTO
+
+  // Interface. Enable one of the following options:
+  //#define TFT_INTERFACE_FSMC
+  //#define TFT_INTERFACE_SPI
+
+  // TFT Resolution. Enable one of the following options:
+  //#define TFT_RES_320x240
+  //#define TFT_RES_480x272
+  //#define TFT_RES_480x320
+#endif
 
 /**
  * TFT UI - User Interface Selection. Enable one of the following options:
@@ -2405,6 +2537,10 @@
 //#define TFT_CLASSIC_UI
 //#define TFT_COLOR_UI
 //#define TFT_LVGL_UI
+
+#if ENABLED(TFT_LVGL_UI)
+  //#define MKS_WIFI_MODULE  // MKS WiFi module
+#endif
 
 /**
  * TFT Rotation. Set to one of the following values:
@@ -2435,10 +2571,19 @@
 
   #define TOUCH_SCREEN_CALIBRATION
 
-  //#define XPT2046_X_CALIBRATION 12316
-  //#define XPT2046_Y_CALIBRATION -8981
-  //#define XPT2046_X_OFFSET        -43
-  //#define XPT2046_Y_OFFSET        257
+  //#define TOUCH_CALIBRATION_X 12316
+  //#define TOUCH_CALIBRATION_Y -8981
+  //#define TOUCH_OFFSET_X        -43
+  //#define TOUCH_OFFSET_Y        257
+  //#define TOUCH_ORIENTATION TOUCH_LANDSCAPE
+
+  #if BOTH(TOUCH_SCREEN_CALIBRATION, EEPROM_SETTINGS)
+    #define TOUCH_CALIBRATION_AUTO_SAVE // Auto save successful calibration values to EEPROM
+  #endif
+
+  #if ENABLED(TFT_COLOR_UI)
+    //#define SINGLE_TOUCH_NAVIGATION
+  #endif
 #endif
 
 //
@@ -2552,6 +2697,7 @@
   // Use a single NeoPixel LED for static (background) lighting
   //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use
   //#define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 } // R, G, B, W
+  //#define NEOPIXEL_BKGD_ALWAYS_ON                  // Keep the backlight on when other NeoPixels are off
 #endif
 
 /**

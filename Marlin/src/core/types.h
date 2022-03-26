@@ -93,7 +93,6 @@ typedef const_float_t const_celsius_float_t;
 // Conversion macros
 #define MMM_TO_MMS(MM_M) feedRate_t(static_cast<float>(MM_M) / 60.0f)
 #define MMS_TO_MMM(MM_S) (static_cast<float>(MM_S) * 60.0f)
-#define MMS_SCALED(V)    ((V) * 0.01f * feedrate_percentage)
 
 //
 // Coordinates structures for XY, XYZ, XYZE...
