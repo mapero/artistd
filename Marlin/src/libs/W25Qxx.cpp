@@ -25,7 +25,6 @@
 #if HAS_SPI_FLASH
 
 #include "W25Qxx.h"
-#include <SPI.h>
 
 W25QXXFlash W25QXX;
 
@@ -45,10 +44,12 @@ W25QXXFlash W25QXX;
   #define NC -1
 #endif
 
+MarlinSPI W25QXXFlash::mySPI(SPI_FLASH_MOSI_PIN, SPI_FLASH_MISO_PIN, SPI_FLASH_SCK_PIN, NC);
 
 #define W25QXX_CS_H OUT_WRITE(SPI_FLASH_CS_PIN, HIGH)
 #define W25QXX_CS_L OUT_WRITE(SPI_FLASH_CS_PIN, LOW)
 
+bool flash_dma_mode = true;
 
 void W25QXXFlash::init(uint8_t spiRate) {
 
@@ -74,11 +75,11 @@ void W25QXXFlash::init(uint8_t spiRate) {
     case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
     default:                clock = SPI_CLOCK_DIV2;// Default from the SPI library
   }
-  SPI.setModule(SPI_DEVICE);
-  SPI.begin();
-  SPI.setClockDivider(clock);
-  SPI.setBitOrder(MSBFIRST);
-  SPI.setDataMode(SPI_MODE0);
+
+  mySPI.setClockDivider(clock);
+  mySPI.setBitOrder(MSBFIRST);
+  mySPI.setDataMode(SPI_MODE0);
+  mySPI.begin();
 }
 
 /**
@@ -87,12 +88,12 @@ void W25QXXFlash::init(uint8_t spiRate) {
  * @return Byte received
  */
 uint8_t W25QXXFlash::spi_flash_Rec() {
-  const uint8_t returnByte = SPI.transfer(0xFF);
+  const uint8_t returnByte = mySPI.transfer(0xFF);
   return returnByte;
 }
 
 uint8_t W25QXXFlash::spi_flash_read_write_byte(uint8_t data) {
-  const uint8_t returnByte = SPI.transfer(data);
+  const uint8_t returnByte = mySPI.transfer(data);
   return returnByte;
 }
 
@@ -105,7 +106,9 @@ uint8_t W25QXXFlash::spi_flash_read_write_byte(uint8_t data) {
  *
  * @details Uses DMA
  */
-void W25QXXFlash::spi_flash_Read(uint8_t* buf, uint16_t nbyte) { SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte); }
+void W25QXXFlash::spi_flash_Read(uint8_t *buf, uint16_t nbyte) {
+  mySPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
+}
 
 /**
  * @brief  Send a single byte on SPI port
@@ -114,7 +117,7 @@ void W25QXXFlash::spi_flash_Read(uint8_t* buf, uint16_t nbyte) { SPI.dmaTransfer
  *
  * @details
  */
-void W25QXXFlash::spi_flash_Send(uint8_t b) { SPI.send(b); }
+void W25QXXFlash::spi_flash_Send(uint8_t b) { mySPI.transfer(b); }
 
 /**
  * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
@@ -125,8 +128,8 @@ void W25QXXFlash::spi_flash_Send(uint8_t b) { SPI.send(b); }
  * @details Use DMA
  */
 void W25QXXFlash::spi_flash_SendBlock(uint8_t token, const uint8_t *buf) {
-  SPI.send(token);
-  SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
+  mySPI.transfer(token);
+  mySPI.dmaSend(const_cast<uint8_t*>(buf), 512);
 }
 
 uint16_t W25QXXFlash::W25QXX_ReadID(void) {
@@ -375,7 +378,7 @@ void W25QXXFlash::SPI_FLASH_BufferRead(uint8_t *pBuffer, uint32_t ReadAddr, uint
   // Send ReadAddr low nybble address byte to read from
   spi_flash_Send(ReadAddr & 0xFF);
 
-  if (NumByteToRead < 33) {
+  if (NumByteToRead <= 32 || !flash_dma_mode) {
     while (NumByteToRead--) { // While there is data to be read
       // Read a byte from the FLASH
       *pBuffer = spi_flash_Rec();
