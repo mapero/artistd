@@ -30,7 +30,7 @@
 #if ENABLED(SPI_EEPROM)
 
 #include "eeprom_if.h"
-#include "../../libs/W25Qxx.h"
+#include "../../libs/W25Qxx.h" //TWINKIEXLII
 
 void eeprom_init() {}
 
