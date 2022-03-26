@@ -21,30 +21,40 @@
  */
 #pragma once
 
-#include "platforms.h"
+#include <stdint.h>
 
-#ifndef GCC_VERSION
-  #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-#endif
+typedef enum {
+  USB_STATE_INIT,
+  USB_STATE_ERROR,
+  USB_STATE_RUNNING,
+} usb_state_t;
 
-#include HAL_PATH(.,HAL.h)
+class USBHost {
+public:
+  bool start();
+  void Task();
+  uint8_t getUsbTaskState();
+  void setUsbTaskState(uint8_t state);
+  uint8_t regRd(uint8_t reg) { return 0x0; };
+  uint8_t usb_task_state = USB_STATE_INIT;
+  uint8_t lun = 0;
+  uint32_t capacity = 0;
+  uint16_t block_size = 0;
+  uint32_t block_count = 0;
+};
 
-#define HAL_ADC_RANGE _BV(HAL_ADC_RESOLUTION)
+class BulkStorage {
+public:
+  BulkStorage(USBHost *usb) : usb(usb) {};
 
-#ifndef I2C_ADDRESS
-  #define I2C_ADDRESS(A) uint8_t(A)
-#endif
+  bool LUNIsGood(uint8_t t);
+  uint32_t GetCapacity(uint8_t lun);
+  uint16_t GetSectorSize(uint8_t lun);
+  uint8_t Read(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t blocks, uint8_t *buf);
+  uint8_t Write(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t blocks, const uint8_t * buf);
 
-// Needed for AVR sprintf_P PROGMEM extension
-#ifndef S_FMT
-  #define S_FMT "%s"
-#endif
+  USBHost *usb;
+};
 
-// String helper
-#ifndef PGMSTR
-  #define PGMSTR(NAM,STR) const char NAM[] = STR
-#endif
-
-inline void watchdog_refresh() {
-  TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
-}
+extern USBHost usb;
+extern BulkStorage bulk;
