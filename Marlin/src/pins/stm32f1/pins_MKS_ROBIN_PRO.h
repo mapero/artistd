@@ -44,7 +44,7 @@
 
 #define SPI_EEPROM
 #define SPI_CHAN_EEPROM1                        2
-#define SPI_EEPROM1_CS                          PB12 
+#define SPI_EEPROM1_CS_PIN                          PB12 
 #define MARLIN_EEPROM_SIZE 						0x1000   // 4KB
 //#define E2END 									0xFFF
 

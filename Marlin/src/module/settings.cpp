@@ -696,7 +696,7 @@ void MarlinSettings::postprocess() {
    */
   bool MarlinSettings::save() {
 
-    #if ENABLED(SPI_EEPROM)            //TwinkieXLII
+    #if ENABLED(SPI_EEPROM)
       W25QXX.init(SPI_QUARTER_SPEED);
     #endif
     W25QXX.SPI_FLASH_SectorErase(0);
@@ -712,14 +712,14 @@ void MarlinSettings::postprocess() {
     #if ENABLED(SPI_EEPROM)
       EEPROM_SKIP(ver); //Artist-D
     #else
-      TERN(FLASH_EEPROM_EMULATION, EEPROM_SKIP, EEPROM_WRITE)(ver);
-    #endif
-
+    TERN(FLASH_EEPROM_EMULATION, EEPROM_SKIP, EEPROM_WRITE)(ver);
+    #endif 
+    
     #if ENABLED(EEPROM_INIT_NOW)
       EEPROM_SKIP(build_hash);  // Skip the hash slot
     #endif
 
-    EEPROM_SKIP(working_crc); // Skip the checksum slot
+    EEPROM_SKIP(working_crc);   // Skip the checksum slot
 
     working_crc = 0; // clear before first "real data"
 
