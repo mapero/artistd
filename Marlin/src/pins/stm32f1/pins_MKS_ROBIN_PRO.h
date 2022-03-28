@@ -42,17 +42,10 @@
 
 //#define  SDCARD_EEPROM_EMULATION
 
-#define SPI_EEPROM
-#define SPI_CHAN_EEPROM1                        2
-#define SPI_EEPROM1_CS_PIN                          PB12 
-#define MARLIN_EEPROM_SIZE 						0x1000   // 4KB
-//#define E2END 									0xFFF
-
+//
 // Note: MKS Robin board is using SPI2 interface.
 //
 #define SPI_DEVICE                             2
-//#define SPI_MODULE                           2 //Replaced by SPI_DEVICE in 2.0.8?
-//#define ENABLE_SPI2
 
 //
 // Servos
@@ -214,10 +207,10 @@
 
 #if SD_CONNECTION_IS(LCD)
   #define SD_DETECT_PIN                     PG3
-  #define SCK_PIN                           PB13
-  #define MISO_PIN                          PB14
-  #define MOSI_PIN                          PB15
-  #define SS_PIN                            PG6
+  #define SD_SCK_PIN                        PB13
+  #define SD_MISO_PIN                       PB14
+  #define SD_MOSI_PIN                       PB15
+  #define SD_SS_PIN                         PG6
 #elif SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT
   #define SD_DETECT_PIN                     PD12
@@ -229,21 +222,32 @@
 //
 // TFT with FSMC interface
 //
+#if HAS_FSMC_TFT
   /**
    * Note: MKS Robin TFT screens use various TFT controllers.
    * If the screen stays white, disable 'LCD_RESET_PIN'
    * to let the bootloader init the screen.
    */
-#if HAS_FSMC_GRAPHICAL_TFT
+  #define NO_LCD_REINIT                           // Suppress LCD re-initialization
+  #define TFT_RESET_PIN            LCD_RESET_PIN
+  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
+
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define LCD_RESET_PIN                     PC6
-  #define NO_LCD_REINIT                           // Suppress LCD re-initialization
-
   #define LCD_BACKLIGHT_PIN                 PD13
 
+  #define TFT_BUFFER_SIZE                  14400
+
   #if NEED_TOUCH_PINS
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        2
     #define TOUCH_CS_PIN                    PA7   // SPI2_NSS
     #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
     #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
@@ -305,9 +309,6 @@
   #define BOARD_ST7920_DELAY_3               125
 #endif
 
-
-//SPI FLASH
-#define SPI_FLASH
 #define HAS_SPI_FLASH                          1
 #if HAS_SPI_FLASH
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
@@ -317,3 +318,7 @@
   #define W25QXX_SCK_PIN                 PB13
 #endif
 
+#define SPI_EEPROM
+#define SPI_CHAN_EEPROM1                        2
+#define SPI_EEPROM1_CS_PIN                          PB12 
+#define MARLIN_EEPROM_SIZE 						0x1000000  // 16MB
