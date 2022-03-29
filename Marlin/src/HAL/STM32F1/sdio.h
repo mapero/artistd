@@ -101,7 +101,7 @@
 #define SDIO_WRITE_TIMEOUT                   300U //JGMaker           /* Write data transfer timeout */
 
 #ifndef SDIO_CLOCK
-  #define SDIO_CLOCK                         4500000        /* 18 MHz */  //JGMaker
+  #define SDIO_CLOCK                         18000000       /* 18 MHz */
 #endif
 
 #ifndef SDIO_READ_RETRIES

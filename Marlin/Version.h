@@ -26,9 +26,9 @@
 ////////////////////////////////////
 
 /**
- * Marlin release version identifier //BASED on 2.0.9.3
+ * Marlin release version identifier //BASED on 2.0.9.3 BUGFIX
  */
-#define SHORT_BUILD_VERSION "2022.0.2"
+#define SHORT_BUILD_VERSION "Twinkie-2022.1.0-BETA"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -41,7 +41,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2021-03-25"
+//#define STRING_DISTRIBUTION_DATE "2022-01-10"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.

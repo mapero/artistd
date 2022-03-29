@@ -40,8 +40,6 @@
 //
 #define DISABLE_DEBUG
 
-//#define  SDCARD_EEPROM_EMULATION
-
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
@@ -106,6 +104,14 @@
 #ifndef E2_CS_PIN
   #define E2_CS_PIN                         PG9
 #endif
+
+#define X2_ENABLE_PIN                        E2_ENABLE_PIN
+#define X2_STEP_PIN                          E2_STEP_PIN
+#define X2_DIR_PIN                           E2_DIR_PIN
+#ifndef X2_CS_PIN
+  #define X2_CS_PIN                          E2_CS_PIN
+#endif
+
 //
 // Software SPI pins for TMC2130 stepper drivers
 //
@@ -178,6 +184,7 @@
 //#define TEMP_0_CS_PIN                     PF11  // TC2 - CS2
 
 #define POWER_LOSS_PIN                      PA2   // PW_DET
+#define PS_ON_PIN                           PG11  // PW_OFF
 #define FIL_RUNOUT_PIN                      PA4   // MT_DET1
 #define FIL_RUNOUT2_PIN                     PE6   // MT_DET2
 #define FIL_RUNOUT3_PIN                     PG14  // MT_DET3
@@ -228,7 +235,6 @@
    * If the screen stays white, disable 'LCD_RESET_PIN'
    * to let the bootloader init the screen.
    */
-  #define NO_LCD_REINIT                           // Suppress LCD re-initialization
   #define TFT_RESET_PIN            LCD_RESET_PIN
   #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
