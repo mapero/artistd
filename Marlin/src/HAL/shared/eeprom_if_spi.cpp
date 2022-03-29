@@ -30,9 +30,11 @@
 #if ENABLED(SPI_EEPROM)
 
 #include "eeprom_if.h"
-#include "../../libs/W25Qxx.h"
+#include "../../libs/W25Qxx.h" //TWINKIEXLII
 
-void eeprom_init() {}
+void eeprom_init() {
+  W25QXX.init(SPI_QUARTER_SPEED);
+}
 
 #if ENABLED(USE_SHARED_EEPROM)
 
@@ -44,54 +46,16 @@ void eeprom_init() {}
   #define EEPROM_WRITE_DELAY    7
 #endif
 
-uint8_t eeprom_read_byte(uint8_t* pos) {
+
+
+uint8_t eeprom_read_byte(uint8_t *pos) {
   uint8_t v;
-
-  #if 1
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&v,(uint32_t)pos,1);
-  return v;
-  #else
-  uint8_t eeprom_temp[3];
-
-  // set read location
-  // begin transmission from device
-  eeprom_temp[0] = CMD_READ;
-  eeprom_temp[1] = ((unsigned)pos>>8) & 0xFF; // addr High
-  eeprom_temp[2] = (unsigned)pos& 0xFF;       // addr Low
-  WRITE(SPI_EEPROM1_CS, HIGH);
-  WRITE(SPI_EEPROM1_CS, LOW);
-  spiSend(SPI_CHAN_EEPROM1, eeprom_temp, 3);
-
-  v = spiRec(SPI_CHAN_EEPROM1);
-  WRITE(SPI_EEPROM1_CS, HIGH);
-  return v;
-  #endif
+  return v; 
 }
 
-void eeprom_write_byte(uint8_t* pos, uint8_t value) {
-  #if 1
+void eeprom_write_byte(uint8_t *pos, uint8_t value) {
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&value,(uint32_t)pos,1);
-  #else
-  uint8_t eeprom_temp[3];
-
-  /*write enable*/
-  eeprom_temp[0] = CMD_WREN;
-  WRITE(SPI_EEPROM1_CS, LOW);
-  spiSend(SPI_CHAN_EEPROM1, eeprom_temp, 1);
-  WRITE(SPI_EEPROM1_CS, HIGH);
-  delay(1);
-
-  /*write addr*/
-  eeprom_temp[0] = CMD_WRITE;
-  eeprom_temp[1] = ((unsigned)pos>>8) & 0xFF;  //addr High
-  eeprom_temp[2] = (unsigned)pos & 0xFF;       //addr Low
-  WRITE(SPI_EEPROM1_CS, LOW);
-  spiSend(SPI_CHAN_EEPROM1, eeprom_temp, 3);
-
-  spiSend(SPI_CHAN_EEPROM1, value);
-  WRITE(SPI_EEPROM1_CS, HIGH);
-  delay(EEPROM_WRITE_DELAY);   // wait for page write to complete
-  #endif
 }
 
 #endif // USE_SHARED_EEPROM
