@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier //BASED on 2.0.9.3 BUGFIX
  */
-#define SHORT_BUILD_VERSION "Twinkie-2022.1.0-BETA"
+#define SHORT_BUILD_VERSION "Twinkie-2022.2.1-RC1"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -59,7 +59,7 @@
 /**
  * Default generic printer UUID.
  */
-#define DEFAULT_MACHINE_UUID "2d04c5ff-9850-4be4-b041-df34fd67facb"
+#define DEFAULT_MACHINE_UUID "7486383c-afbb-11ec-b909-0242ac120002"
 
 /**
  * The WEBSITE_URL is the location where users can get more information such as
