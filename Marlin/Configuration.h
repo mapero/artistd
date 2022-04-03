@@ -836,7 +836,7 @@
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.  //Change to False for BLtouch
+#define Z_MIN_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.  //Twinkie XLII Change to False for BLtouch
 #define I_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define J_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define K_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
@@ -879,7 +879,7 @@
 //#define K_DRIVER_TYPE  A4988
 #define E0_DRIVER_TYPE A4988              //TwinkieXLII
 #define E1_DRIVER_TYPE A4988              //TwinkieXLII
-#define E2_DRIVER_TYPE TMC2208_STANDALONE //TwinkieXLII Because Robin_PRO defines X2 as E2
+//#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
 //#define E4_DRIVER_TYPE A4988
 //#define E5_DRIVER_TYPE A4988
@@ -1038,7 +1038,7 @@
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
 // Force the use of the probe for Z-axis homing
-//#define USE_PROBE_FOR_Z_HOMING
+//#define USE_PROBE_FOR_Z_HOMING //ENABLE for BLTOUCH TwinkieXLII
 
 /**
  * Z_MIN_PROBE_PIN
@@ -1275,7 +1275,7 @@
 #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
-//#define Z_AFTER_PROBING           5 // Z position after probing is done
+#define Z_AFTER_PROBING           5 // Z position after probing is done
 
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
 
@@ -1561,7 +1561,7 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR
+//#define AUTO_BED_LEVELING_BILINEAR  //BLTOUCH
 //#define AUTO_BED_LEVELING_UBL
 #define MESH_BED_LEVELING
 
@@ -1762,7 +1762,7 @@
  * - Allows Z homing only when XY positions are known and trusted.
  * - If stepper drivers sleep, XY homing may be required again before Z homing.
  */
-//#define Z_SAFE_HOMING  //TwinkieXLII... Bltouch
+//#define Z_SAFE_HOMING  //TwinkieXLII Enable for BLTouch
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
