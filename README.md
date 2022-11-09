@@ -1,4 +1,11 @@
-# Twinkie Firmware For JGMaker Artist-D Standard Version 
+# Modified Firmware For JGMaker Artist-D with Trianglelabs Matrix Extruder
+
+## Modifications
+
+- 104NT-4-R025H42G Temperature sensor
+- Undo inversion of extruder 0
+
+# Origin from Twinkie Firmware For JGMaker Artist-D Standard Version 
 ![GitHub](https://img.shields.io/github/license/TwinkieXLII/artistd.svg)
 ![GitHub Release Date](https://img.shields.io/github/release-date/TwinkieXLII/artistd.svg)
 This version of the firmware is based from the 2.0.9.3 Version of the Upstream Marlin Project.  
