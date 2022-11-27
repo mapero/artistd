@@ -868,7 +868,7 @@
  */
 #define X_DRIVER_TYPE  TMC2208 //TwinkieXLII
 #define Y_DRIVER_TYPE  TMC2208 //TwinkieXLII
-#define Z_DRIVER_TYPE  TMC2208 //TwinkieXLII
+#define Z_DRIVER_TYPE  TMC2209 //TwinkieXLII
 #define X2_DRIVER_TYPE TMC2208 //TwinkieXLII
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
