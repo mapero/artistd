@@ -4,6 +4,10 @@
 
 - 104NT-4-R025H42G Temperature sensor
 - Undo inversion of extruder 0
+- Uart enabled for X1, X2, Y, Z Axis
+- Replaced TMC2208 on z axis with TMC2209
+- Enable TMC_DEBUG
+- Disabled Linear Advanced for now
 
 # Origin from Twinkie Firmware For JGMaker Artist-D Standard Version 
 ![GitHub](https://img.shields.io/github/license/TwinkieXLII/artistd.svg)
